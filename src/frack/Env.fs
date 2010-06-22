@@ -4,6 +4,7 @@ module Env =
   open System.IO
   open System.Text
   open System.Web
+  open Frack.Extensions
   
   /// Returns the script name and path info from a 
   let getPathParts (path:string) =
@@ -28,8 +29,8 @@ module Env =
       CONTENT_LENGTH = ctx.Request.ContentLength
       SERVER_NAME = ctx.Request.Url.Host
       SERVER_PORT = ctx.Request.Url.Port
-      HEADERS = ctx.Request.Headers |> Map.fromNameValueCollection
-      QueryString = ctx.Request.QueryString |> Map.fromNameValueCollection
+      HEADERS = ctx.Request.Headers.ToMap()
+      QueryString = ctx.Request.QueryString.ToMap()
       Version = (0,1)
       UrlScheme = ctx.Request.Url.Scheme
       Input = TextReader.Synchronized(new StreamReader(ctx.Request.InputStream))
