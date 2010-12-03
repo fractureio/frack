@@ -20,21 +20,21 @@
   <h2 class="fixed">Types in Frack</h2>
 	<div class="scroll">
 		<ul><li>
+            <a href="../../../../../Frack/Application.htm">Application</a>
+        </li><li>
             <a href="../../../../../Frack/Array.htm">Array</a>
         </li><li>
             <a href="../../../../../Frack/ByteString.htm">ByteString</a>
-        </li><li>
-            <a href="../../../../../Frack/Core.htm">Core</a>
         </li><li>
             <a href="../../../../../Frack/Dict.htm">Dict</a>
         </li><li>
             <a href="../../../../../Frack/Extensions.htm" class="current">Extensions</a>
         </li><li>
+            <a href="../../../../../Frack/Request.htm">Request</a>
+        </li><li>
+            <a href="../../../../../Frack/Response.htm">Response</a>
+        </li><li>
             <a href="../../../../../Frack/SeqStream.htm">SeqStream</a>
-        </li><li>
-            <a href="../../../../../Frack/Tags.htm">Tags</a>
-        </li><li>
-            <a href="../../../../../Frack/Value.htm">Value</a>
         </li>
 		</ul>
 	</div>
@@ -47,7 +47,7 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li>
+			<ul><li><a href="../../../../../Frack/Extensions.htm#IApplication.AsyncInvoke">IApplication.AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.Invoke">IApplication.Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_Path">IRequest.get_Path</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_QueryString">IRequest.get_QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.ReadBody">IRequest.ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li><li><a href="../../../../../Frack/Extensions.htm#splitStatus">splitStatus</a></li><li><a href="../../../../../Frack/Extensions.htm#splitUri">splitUri</a></li>
 			</ul>
 
 
@@ -56,7 +56,63 @@
 
 
 	<h3 class="section">Public static methods</h3>
-<div id="NameValueCollection.AsEnumerable" class="method">
+<div id="IApplication.AsyncInvoke" class="method">
+		<h4><span title="Microsoft.FSharp.Control.FSharpAsync<IResponse>">FSharpAsync&lt;IResponse&gt;</span> <strong>IApplication.AsyncInvoke</strong>(<span title="Owin.IApplication">IApplication</span> this, <span title="Owin.IRequest">IRequest</span> request)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IApplication.Invoke" class="method">
+		<h4><span title="Owin.IResponse">IResponse</span> <strong>IApplication.Invoke</strong>(<span title="Owin.IApplication">IApplication</span> this, <span title="Owin.IRequest">IRequest</span> request)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IRequest.AsyncReadBody" class="method">
+		<h4><span title="Microsoft.FSharp.Control.FSharpAsync<int>">FSharpAsync&lt;int&gt;</span> <strong>IRequest.AsyncReadBody</strong>(<span title="Owin.IRequest">IRequest</span> this, <span title="System.Byte[]">Byte[]</span> buffer, <span title="System.int">int</span> offset, <span title="System.int">int</span> count)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IRequest.AsyncReadBody" class="method">
+		<h4><span title="Microsoft.FSharp.Control.FSharpAsync<Byte[]>">FSharpAsync&lt;Byte[]&gt;</span> <strong>IRequest.AsyncReadBody</strong>(<span title="Owin.IRequest">IRequest</span> this, <span title="System.int">int</span> count)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IRequest.get_Path" class="method">
+		<h4><span title="System.string">string</span> <strong>IRequest.get_Path</strong>(<span title="Owin.IRequest">IRequest</span> )</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IRequest.get_QueryString" class="method">
+		<h4><span title="System.string">string</span> <strong>IRequest.get_QueryString</strong>(<span title="Owin.IRequest">IRequest</span> )</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="IRequest.ReadBody" class="method">
+		<h4><span title="System.int">int</span> <strong>IRequest.ReadBody</strong>(<span title="Owin.IRequest">IRequest</span> this, <span title="System.Byte[]">Byte[]</span> buffer, <span title="System.int">int</span> offset, <span title="System.int">int</span> count)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="NameValueCollection.AsEnumerable" class="method">
 		<h4><span title="System.Collections.Generic.IEnumerable<Tuple<string, string>>">IEnumerable&lt;Tuple&lt;string, string&gt;&gt;</span> <strong>NameValueCollection.AsEnumerable</strong>(<span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> )</h4>
 		<div class="content">
 
@@ -75,6 +131,22 @@
 	</div><div id="NameValueCollection.ToMap" class="method">
 		<h4><span title="Microsoft.FSharp.Collections.FSharpMap<string, string>">FSharpMap&lt;string, string&gt;</span> <strong>NameValueCollection.ToMap</strong>(<span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> )</h4>
 		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="splitStatus" class="method">
+		<h4><span title="System.Tuple<int, string>">Tuple&lt;int, string&gt;</span> <strong>splitStatus</strong>(<span title="System.string">string</span> status)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="splitUri" class="method">
+		<h4><span title="System.Tuple<string, string>">Tuple&lt;string, string&gt;</span> <strong>splitUri</strong>(<span title="System.string">string</span> uri)</h4>
+		<div class="content">Splits a relative Uri string into the path and query string.
 
 
 

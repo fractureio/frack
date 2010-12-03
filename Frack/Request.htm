@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Dict -  Documentation</title>
+    <title>Request -  Documentation</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
     <link type="text/css" rel="stylesheet" href="../main.css"/>
     <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -26,11 +26,11 @@
         </li><li>
             <a href="../../../../../Frack/ByteString.htm">ByteString</a>
         </li><li>
-            <a href="../../../../../Frack/Dict.htm" class="current">Dict</a>
+            <a href="../../../../../Frack/Dict.htm">Dict</a>
         </li><li>
             <a href="../../../../../Frack/Extensions.htm">Extensions</a>
         </li><li>
-            <a href="../../../../../Frack/Request.htm">Request</a>
+            <a href="../../../../../Frack/Request.htm" class="current">Request</a>
         </li><li>
             <a href="../../../../../Frack/Response.htm">Response</a>
         </li><li>
@@ -40,16 +40,14 @@
 	</div>
 </div>
     <div class="header">
-		<p class="class"><strong>Type</strong> Dict</p>
+		<p class="class"><strong>Type</strong> Request</p>
 		<p><strong>Namespace</strong> Frack</p>
 	</div>
     <div class="sub-header">
-			<div id="summary">Extensions to dictionaries.
-			</div>
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Dict.htm#toArray``2">toArray&lt;a, b&gt;</a></li><li><a href="../../../../../Frack/Dict.htm#toList``2">toList&lt;a, b&gt;</a></li><li><a href="../../../../../Frack/Dict.htm#toSeq``2">toSeq&lt;a, b&gt;</a></li>
+			<ul><li><a href="../../../../../Frack/Request.htm#create">create</a></li><li><a href="../../../../../Frack/Request.htm#fromAsync">fromAsync</a></li>
 			</ul>
 
 
@@ -58,24 +56,16 @@
 
 
 	<h3 class="section">Public static methods</h3>
-<div id="toArray``2" class="method">
-		<h4><span title="System.Tuple`2[]">Tuple`2[]</span> <strong>toArray&lt;a, b&gt;</strong>(<span title="System.Collections.Generic.IDictionary<a, b>">IDictionary&lt;a, b&gt;</span> d)</h4>
+<div id="create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpFunc<Tuple<Byte[], int, int, AsyncCallback, object>, IAsyncResult>">FSharpFunc&lt;Tuple&lt;Byte[], int, int, AsyncCallback, object&gt;, IAsyncResult&gt;</span> beginRead, <span title="Microsoft.FSharp.Core.FSharpFunc<IAsyncResult, int>">FSharpFunc&lt;IAsyncResult, int&gt;</span> endRead)</h4>
 		<div class="content">
 
 
 
 
 		</div>
-	</div><div id="toList``2" class="method">
-		<h4><span title="Microsoft.FSharp.Collections.FSharpList<Tuple<a, b>>">FSharpList&lt;Tuple&lt;a, b&gt;&gt;</span> <strong>toList&lt;a, b&gt;</strong>(<span title="System.Collections.Generic.IDictionary<a, b>">IDictionary&lt;a, b&gt;</span> d)</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="toSeq``2" class="method">
-		<h4><span title="System.Collections.Generic.IEnumerable<Tuple<a, b>>">IEnumerable&lt;Tuple&lt;a, b&gt;&gt;</span> <strong>toSeq&lt;a, b&gt;</strong>(<span title="System.Collections.Generic.IEnumerable<KeyValuePair<a, b>>">IEnumerable&lt;KeyValuePair&lt;a, b&gt;&gt;</span> d)</h4>
+	</div><div id="fromAsync" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>fromAsync</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpFunc<Tuple<Byte[], int, int>, FSharpAsync<int>>">FSharpFunc&lt;Tuple&lt;Byte[], int, int&gt;, FSharpAsync&lt;int&gt;&gt;</span> asyncRead)</h4>
 		<div class="content">
 
 
