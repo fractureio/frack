@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Application -  Documentation</title>
+    <title>Middleware -  Documentation</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
     <link type="text/css" rel="stylesheet" href="../main.css"/>
     <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -20,7 +20,9 @@
   <h2 class="fixed">Types in Frack</h2>
 	<div class="scroll">
 		<ul><li>
-            <a href="../../../../../Frack/Application.htm" class="current">Application</a>
+            <a href="../../../../../Frack/Application.htm">Application</a>
+        </li><li>
+            <a href="../../../../../Frack/Middleware.htm" class="current">Middleware</a>
         </li><li>
             <a href="../../../../../Frack/Request.htm">Request</a>
         </li><li>
@@ -30,20 +32,39 @@
 	</div>
 </div>
     <div class="header">
-		<p class="class"><strong>Type</strong> Application</p>
-		<p><strong>Namespace</strong> Frack</p><p><strong>Interfaces</strong> <span title="Owin.IApplication">IApplication</span></p>
+		<p class="class"><strong>Type</strong> Middleware</p>
+		<p><strong>Namespace</strong> Frack</p>
 	</div>
     <div class="sub-header">
-			<div id="summary">Creates an Owin.IApplication.
-			</div>
 
 
+			<h3 class="section">Methods</h3>
+			<ul><li><a href="../../../../../Frack/Middleware.htm#head">head</a></li><li><a href="../../../../../Frack/Middleware.htm#methodOverride">methodOverride</a></li>
+			</ul>
 
 
 	</div>
 
 
 
+	<h3 class="section">Public static methods</h3>
+<div id="head" class="method">
+		<h4><span title="Owin.IApplication">IApplication</span> <strong>head</strong>(<span title="Owin.IApplication">IApplication</span> app)</h4>
+		<div class="content">Intercepts a request using the HEAD method and strips away the returned body from a GET response.
+
+
+
+
+		</div>
+	</div><div id="methodOverride" class="method">
+		<h4><span title="Owin.IApplication">IApplication</span> <strong>methodOverride</strong>(<span title="Owin.IApplication">IApplication</span> app)</h4>
+		<div class="content">Intercepts the environment and checks for use of X_HTTP_METHOD_OVERRIDE.
+
+
+
+
+		</div>
+	</div>
 
 <div id="footer">
   <p>Based on v0.0.0.0 of </p>
