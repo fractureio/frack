@@ -22,9 +22,23 @@
 		<ul><li>
             <a href="../../../../../Frack/Application.htm">Application</a>
         </li><li>
+            <a href="../../../../../Frack/Array.htm">Array</a>
+        </li><li>
+            <a href="../../../../../Frack/ByteString.htm">ByteString</a>
+        </li><li>
+            <a href="../../../../../Frack/Dict.htm">Dict</a>
+        </li><li>
+            <a href="../../../../../Frack/EnumerableStream.htm">EnumerableStream</a>
+        </li><li>
+            <a href="../../../../../Frack/Extensions.htm">Extensions</a>
+        </li><li>
+            <a href="../../../../../Frack/Middleware.htm">Middleware</a>
+        </li><li>
             <a href="../../../../../Frack/Request.htm" class="current">Request</a>
         </li><li>
             <a href="../../../../../Frack/Response.htm">Response</a>
+        </li><li>
+            <a href="../../../../../Frack/Utility.htm">Utility</a>
         </li>
 		</ul>
 	</div>
@@ -39,60 +53,42 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Request.htm#Equals">Equals</a></li><li><a href="../../../../../Frack/Request.htm#FromAsync">FromAsync</a></li><li><a href="../../../../../Frack/Request.htm#FromBeginEnd">FromBeginEnd</a></li><li><a href="../../../../../Frack/Request.htm#GetHashCode">GetHashCode</a></li><li><a href="../../../../../Frack/Request.htm#GetType">GetType</a></li><li><a href="../../../../../Frack/Request.htm#ToString">ToString</a></li>
+			<ul><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li>
 			</ul>
 
 
 	</div>
 
 
-	<h3 class="section">Public instance methods</h3>
-<div id="Equals" class="method">
-		<h4><span title="System.bool">bool</span> <strong>Equals</strong>(<span title="System.object">object</span> obj)</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="GetHashCode" class="method">
-		<h4><span title="System.int">int</span> <strong>GetHashCode</strong>()</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="GetType" class="method">
-		<h4><span title="System.Type">Type</span> <strong>GetType</strong>()</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="ToString" class="method">
-		<h4><span title="System.string">string</span> <strong>ToString</strong>()</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div>
 
 	<h3 class="section">Public static methods</h3>
-<div id="FromAsync" class="method">
-		<h4><span title="Owin.IRequest">IRequest</span> <strong>FromAsync</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="Microsoft.FSharp.Core.FSharpOption<IDictionary<string, object>>">FSharpOption&lt;IDictionary&lt;string, object&gt;&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpOption<FSharpFunc<Tuple<Byte[], int, int>, FSharpAsync<int>>>">FSharpOption&lt;FSharpFunc&lt;Tuple&lt;Byte[], int, int&gt;, FSharpAsync&lt;int&gt;&gt;&gt;</span> asyncRead)</h4>
-		<div class="content">Creates an Owin.IRequest from an Async computation.
+<div id="Create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpFunc<Tuple<Byte[], int, int>, FSharpAsync<int>>">FSharpFunc&lt;Tuple&lt;Byte[], int, int&gt;, FSharpAsync&lt;int&gt;&gt;</span> asyncRead)</h4>
+		<div class="content">
 
 
 
 
 		</div>
-	</div><div id="FromBeginEnd" class="method">
-		<h4><span title="Owin.IRequest">IRequest</span> <strong>FromBeginEnd</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpFunc<Tuple<Byte[], int, int, AsyncCallback, object>, IAsyncResult>">FSharpFunc&lt;Tuple&lt;Byte[], int, int, AsyncCallback, object&gt;, IAsyncResult&gt;</span> beginRead, <span title="Microsoft.FSharp.Core.FSharpFunc<IAsyncResult, int>">FSharpFunc&lt;IAsyncResult, int&gt;</span> endRead)</h4>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="Microsoft.FSharp.Core.FSharpFunc<Tuple<Byte[], int, int, AsyncCallback, object>, IAsyncResult>">FSharpFunc&lt;Tuple&lt;Byte[], int, int, AsyncCallback, object&gt;, IAsyncResult&gt;</span> beginRead, <span title="Microsoft.FSharp.Core.FSharpFunc<IAsyncResult, int>">FSharpFunc&lt;IAsyncResult, int&gt;</span> endRead)</h4>
 		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="System.Func<Tuple<Byte[], int, int>, AsyncCallback, object, IAsyncResult>">Func&lt;Tuple&lt;Byte[], int, int&gt;, AsyncCallback, object, IAsyncResult&gt;</span> beginRead, <span title="System.Func<IAsyncResult, int>">Func&lt;IAsyncResult, int&gt;</span> endRead)</h4>
+		<div class="content">Creates an IRequest from begin/end Func delegates.
+
+
+
+
+		</div>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="System.Func<Byte[], int, int, int>">Func&lt;Byte[], int, int, int&gt;</span> read)</h4>
+		<div class="content">Creates an IRequest from a Func delegate.
 
 
 

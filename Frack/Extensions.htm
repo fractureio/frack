@@ -28,13 +28,17 @@
         </li><li>
             <a href="../../../../../Frack/Dict.htm">Dict</a>
         </li><li>
+            <a href="../../../../../Frack/EnumerableStream.htm">EnumerableStream</a>
+        </li><li>
             <a href="../../../../../Frack/Extensions.htm" class="current">Extensions</a>
+        </li><li>
+            <a href="../../../../../Frack/Middleware.htm">Middleware</a>
         </li><li>
             <a href="../../../../../Frack/Request.htm">Request</a>
         </li><li>
             <a href="../../../../../Frack/Response.htm">Response</a>
         </li><li>
-            <a href="../../../../../Frack/SeqStream.htm">SeqStream</a>
+            <a href="../../../../../Frack/Utility.htm">Utility</a>
         </li>
 		</ul>
 	</div>
@@ -47,7 +51,7 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Extensions.htm#AsyncInvoke">AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBody">AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBodyToEnd">AsyncReadBodyToEnd</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.AsyncInvoke">IApplication.AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.Invoke">IApplication.Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#Invoke">Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_Path">IRequest.get_Path</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_QueryString">IRequest.get_QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.ReadBody">IRequest.ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusCode">IResponse.get_StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusDescription">IResponse.get_StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li><li><a href="../../../../../Frack/Extensions.htm#Path">Path</a></li><li><a href="../../../../../Frack/Extensions.htm#QueryString">QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadBody">ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#splitStatus">splitStatus</a></li><li><a href="../../../../../Frack/Extensions.htm#splitUri">splitUri</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusCode">StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusDescription">StatusDescription</a></li>
+			<ul><li><a href="../../../../../Frack/Extensions.htm#AsEnumerable">AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncInvoke">AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBody">AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBodyToEnd">AsyncReadBodyToEnd</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.AsyncInvoke">IApplication.AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.Invoke">IApplication.Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#Invoke">Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_Path">IRequest.get_Path</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_QueryString">IRequest.get_QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.ReadBody">IRequest.ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusCode">IResponse.get_StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusDescription">IResponse.get_StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li><li><a href="../../../../../Frack/Extensions.htm#Path">Path</a></li><li><a href="../../../../../Frack/Extensions.htm#QueryString">QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadAsString">ReadAsString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadBody">ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusCode">StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusDescription">StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#ToDictionary">ToDictionary</a></li>
 			</ul>
 
 
@@ -56,7 +60,15 @@
 
 
 	<h3 class="section">Public static methods</h3>
-<div id="AsyncInvoke" class="method">
+<div id="AsEnumerable" class="method">
+		<h4><span title="System.Collections.Generic.IEnumerable<Tuple<string, string>>">IEnumerable&lt;Tuple&lt;string, string&gt;&gt;</span> <strong>AsEnumerable</strong>(this <span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> this)</h4>
+		<div class="content">Extends NameValueCollection with methods to transform it to an enumerable.
+
+
+
+
+		</div>
+	</div><div id="AsyncInvoke" class="method">
 		<h4><span title="Microsoft.FSharp.Control.FSharpAsync<IResponse>">FSharpAsync&lt;IResponse&gt;</span> <strong>AsyncInvoke</strong>(this <span title="Owin.IApplication">IApplication</span> app, <span title="Owin.IRequest">IRequest</span> request)</h4>
 		<div class="content">
 
@@ -200,25 +212,17 @@
 
 
 		</div>
+	</div><div id="ReadAsString" class="method">
+		<h4><span title="System.string">string</span> <strong>ReadAsString</strong>(this <span title="Owin.IRequest">IRequest</span> request)</h4>
+		<div class="content">
+
+
+
+
+		</div>
 	</div><div id="ReadBody" class="method">
 		<h4><span title="System.int">int</span> <strong>ReadBody</strong>(this <span title="Owin.IRequest">IRequest</span> request, <span title="System.Byte[]">Byte[]</span> buffer, <span title="System.int">int</span> offset, <span title="System.int">int</span> count)</h4>
 		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="splitStatus" class="method">
-		<h4><span title="System.Tuple<int, string>">Tuple&lt;int, string&gt;</span> <strong>splitStatus</strong>(<span title="System.string">string</span> status)</h4>
-		<div class="content">
-
-
-
-
-		</div>
-	</div><div id="splitUri" class="method">
-		<h4><span title="System.Tuple<string, string>">Tuple&lt;string, string&gt;</span> <strong>splitUri</strong>(<span title="System.string">string</span> uri)</h4>
-		<div class="content">Splits a relative Uri string into the path and query string.
 
 
 
@@ -235,6 +239,14 @@
 	</div><div id="StatusDescription" class="method">
 		<h4><span title="System.string">string</span> <strong>StatusDescription</strong>(this <span title="Owin.IResponse">IResponse</span> response)</h4>
 		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="ToDictionary" class="method">
+		<h4><span title="System.Collections.Generic.IDictionary<string, string>">IDictionary&lt;string, string&gt;</span> <strong>ToDictionary</strong>(this <span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> this)</h4>
+		<div class="content">Extends NameValueCollection with methods to transform it to a dictionary.
 
 
 

@@ -22,9 +22,23 @@
 		<ul><li>
             <a href="../../../../../Frack/Application.htm">Application</a>
         </li><li>
+            <a href="../../../../../Frack/Array.htm">Array</a>
+        </li><li>
+            <a href="../../../../../Frack/ByteString.htm">ByteString</a>
+        </li><li>
+            <a href="../../../../../Frack/Dict.htm">Dict</a>
+        </li><li>
+            <a href="../../../../../Frack/EnumerableStream.htm">EnumerableStream</a>
+        </li><li>
+            <a href="../../../../../Frack/Extensions.htm">Extensions</a>
+        </li><li>
+            <a href="../../../../../Frack/Middleware.htm">Middleware</a>
+        </li><li>
             <a href="../../../../../Frack/Request.htm">Request</a>
         </li><li>
             <a href="../../../../../Frack/Response.htm" class="current">Response</a>
+        </li><li>
+            <a href="../../../../../Frack/Utility.htm">Utility</a>
         </li>
 		</ul>
 	</div>
@@ -39,7 +53,7 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Response.htm#FromByteArray">FromByteArray</a></li><li><a href="../../../../../Frack/Response.htm#FromByteArrays``1">FromByteArrays&lt;a&gt;</a></li><li><a href="../../../../../Frack/Response.htm#FromByteString">FromByteString</a></li><li><a href="../../../../../Frack/Response.htm#FromByteStrings">FromByteStrings</a></li><li><a href="../../../../../Frack/Response.htm#FromByteStrings">FromByteStrings</a></li><li><a href="../../../../../Frack/Response.htm#FromString">FromString</a></li><li><a href="../../../../../Frack/Response.htm#FromStringArray">FromStringArray</a></li><li><a href="../../../../../Frack/Response.htm#FromStrings">FromStrings</a></li>
+			<ul><li><a href="../../../../../Frack/Response.htm#Create">Create</a></li><li><a href="../../../../../Frack/Response.htm#Create">Create</a></li><li><a href="../../../../../Frack/Response.htm#Create">Create</a></li><li><a href="../../../../../Frack/Response.htm#Create">Create</a></li>
 			</ul>
 
 
@@ -48,64 +62,32 @@
 
 
 	<h3 class="section">Public static methods</h3>
-<div id="FromByteArray" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromByteArray</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Byte[]">Byte[]</span> body)</h4>
+<div id="Create" class="method">
+		<h4><span title="Owin.IResponse">IResponse</span> <strong>Create</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IEnumerable<string>">IEnumerable&lt;string&gt;</span> body)</h4>
 		<div class="content">Creates an Owin.IResponse.
 
 
 
 
 		</div>
-	</div><div id="FromByteArrays``1" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromByteArrays&lt;a&gt;</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="Frack.a">a</span> body)</h4>
-		<div class="content">Creates an Owin.IResponse.
-
-
-
-
-		</div>
-	</div><div id="FromByteString" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromByteString</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IEnumerable<Byte>">IEnumerable&lt;Byte&gt;</span> body)</h4>
-		<div class="content">Creates an Owin.IResponse.
-
-
-
-
-		</div>
-	</div><div id="FromByteStrings" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromByteStrings</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IEnumerable<IEnumerable<Byte>>">IEnumerable&lt;IEnumerable&lt;Byte&gt;&gt;</span> body)</h4>
-		<div class="content">Creates an Owin.IResponse.
-
-
-
-
-		</div>
-	</div><div id="FromByteStrings" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromByteStrings</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="Microsoft.FSharp.Core.FSharpFunc<Unit, IEnumerable<IEnumerable<Byte>>>">FSharpFunc&lt;Unit, IEnumerable&lt;IEnumerable&lt;Byte&gt;&gt;&gt;</span> getBody)</h4>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IResponse">IResponse</span> <strong>Create</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="Microsoft.FSharp.Core.FSharpFunc<Unit, IEnumerable<Byte[]>>">FSharpFunc&lt;Unit, IEnumerable&lt;Byte[]&gt;&gt;</span> getBody)</h4>
 		<div class="content">
 
 
 
 
 		</div>
-	</div><div id="FromString" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromString</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.string">string</span> body)</h4>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IResponse">IResponse</span> <strong>Create</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.IO.FileInfo">FileInfo</span> body)</h4>
 		<div class="content">Creates an Owin.IResponse.
 
 
 
 
 		</div>
-	</div><div id="FromStringArray" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromStringArray</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.String[]">String[]</span> body)</h4>
-		<div class="content">Creates an Owin.IResponse.
-
-
-
-
-		</div>
-	</div><div id="FromStrings" class="method">
-		<h4><span title="Owin.IResponse">IResponse</span> <strong>FromStrings</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IEnumerable<string>">IEnumerable&lt;string&gt;</span> body)</h4>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IResponse">IResponse</span> <strong>Create</strong>(<span title="System.string">string</span> status, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.string">string</span> body)</h4>
 		<div class="content">Creates an Owin.IResponse.
 
 
