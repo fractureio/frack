@@ -53,13 +53,34 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li>
+			<ul><li><a href="../../../../../Frack/Request.htm#BeginReadBody">BeginReadBody</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#Create">Create</a></li><li><a href="../../../../../Frack/Request.htm#EndReadBody">EndReadBody</a></li>
 			</ul>
 
+			<h3 class="section">Properties</h3>
+			<ul><li><a href="../../../../../Frack/Request.htm#Headers">Headers</a></li><li><a href="../../../../../Frack/Request.htm#Items">Items</a></li><li><a href="../../../../../Frack/Request.htm#Method">Method</a></li><li><a href="../../../../../Frack/Request.htm#Uri">Uri</a></li>
+			</ul>
 
 	</div>
 
 
+	<h3 class="section">Public instance methods</h3>
+<div id="BeginReadBody" class="method">
+		<h4><span title="System.IAsyncResult">IAsyncResult</span> <strong>BeginReadBody</strong>(<span title="System.Byte[]">Byte[]</span> buffer, <span title="System.int">int</span> offset, <span title="System.int">int</span> count, <span title="System.AsyncCallback">AsyncCallback</span> callback, <span title="System.object">object</span> state)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="EndReadBody" class="method">
+		<h4><span title="System.int">int</span> <strong>EndReadBody</strong>(<span title="System.IAsyncResult">IAsyncResult</span> result)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div>
 
 	<h3 class="section">Public static methods</h3>
 <div id="Create" class="method">
@@ -79,14 +100,6 @@
 
 		</div>
 	</div><div id="Create" class="method">
-		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="System.Func<Tuple<Byte[], int, int>, AsyncCallback, object, IAsyncResult>">Func&lt;Tuple&lt;Byte[], int, int&gt;, AsyncCallback, object, IAsyncResult&gt;</span> beginRead, <span title="System.Func<IAsyncResult, int>">Func&lt;IAsyncResult, int&gt;</span> endRead)</h4>
-		<div class="content">Creates an IRequest from begin/end Func delegates.
-
-
-
-
-		</div>
-	</div><div id="Create" class="method">
 		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="System.Func<Byte[], int, int, int>">Func&lt;Byte[], int, int, int&gt;</span> read)</h4>
 		<div class="content">Creates an IRequest from a Func delegate.
 
@@ -94,8 +107,38 @@
 
 
 		</div>
+	</div><div id="Create" class="method">
+		<h4><span title="Owin.IRequest">IRequest</span> <strong>Create</strong>(<span title="System.string">string</span> methd, <span title="System.string">string</span> uri, <span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> headers, <span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> items, <span title="System.Func<Tuple<Byte[], int, int>, AsyncCallback, object, IAsyncResult>">Func&lt;Tuple&lt;Byte[], int, int&gt;, AsyncCallback, object, IAsyncResult&gt;</span> beginRead, <span title="System.Func<IAsyncResult, int>">Func&lt;IAsyncResult, int&gt;</span> endRead)</h4>
+		<div class="content">Creates an IRequest from begin/end Func delegates.
+
+
+
+
+		</div>
 	</div>
 
+  <h3 class="section">Public properties</h3>
+<div id="Headers" class="method">
+    <h4><span title="System.Collections.Generic.IDictionary<string, IEnumerable<string>>">IDictionary&lt;string, IEnumerable&lt;string&gt;&gt;</span> <strong>Headers</strong> get; </h4>
+    <div class="content">
+
+    </div>
+  </div><div id="Items" class="method">
+    <h4><span title="System.Collections.Generic.IDictionary<string, object>">IDictionary&lt;string, object&gt;</span> <strong>Items</strong> get; </h4>
+    <div class="content">
+
+    </div>
+  </div><div id="Method" class="method">
+    <h4><span title="System.string">string</span> <strong>Method</strong> get; </h4>
+    <div class="content">
+
+    </div>
+  </div><div id="Uri" class="method">
+    <h4><span title="System.string">string</span> <strong>Uri</strong> get; </h4>
+    <div class="content">
+
+    </div>
+  </div>
 <div id="footer">
   <p>Based on v0.0.0.0 of </p>
   <p>Generated by <a href="http://docu.jagregory.com">docu</a></p>

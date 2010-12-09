@@ -51,7 +51,7 @@
 
 
 			<h3 class="section">Methods</h3>
-			<ul><li><a href="../../../../../Frack/Extensions.htm#AsEnumerable">AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncInvoke">AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBody">AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBodyToEnd">AsyncReadBodyToEnd</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.AsyncInvoke">IApplication.AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.Invoke">IApplication.Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#Invoke">Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_Path">IRequest.get_Path</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_QueryString">IRequest.get_QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.ReadBody">IRequest.ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusCode">IResponse.get_StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusDescription">IResponse.get_StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li><li><a href="../../../../../Frack/Extensions.htm#Path">Path</a></li><li><a href="../../../../../Frack/Extensions.htm#QueryString">QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadAsString">ReadAsString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadBody">ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusCode">StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusDescription">StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#ToDictionary">ToDictionary</a></li>
+			<ul><li><a href="../../../../../Frack/Extensions.htm#AsEnumerable">AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncInvoke">AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBody">AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#AsyncReadBodyToEnd">AsyncReadBodyToEnd</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.AsyncInvoke">IApplication.AsyncInvoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IApplication.Invoke">IApplication.Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#Invoke">Invoke</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.AsyncReadBody">IRequest.AsyncReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_Path">IRequest.get_Path</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.get_QueryString">IRequest.get_QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#IRequest.ReadBody">IRequest.ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusCode">IResponse.get_StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.get_StatusDescription">IResponse.get_StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#IResponse.WriteToStream">IResponse.WriteToStream</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.AsEnumerable">NameValueCollection.AsEnumerable</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToDictionary">NameValueCollection.ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#NameValueCollection.ToMap">NameValueCollection.ToMap</a></li><li><a href="../../../../../Frack/Extensions.htm#Path">Path</a></li><li><a href="../../../../../Frack/Extensions.htm#QueryString">QueryString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadAsString">ReadAsString</a></li><li><a href="../../../../../Frack/Extensions.htm#ReadBody">ReadBody</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusCode">StatusCode</a></li><li><a href="../../../../../Frack/Extensions.htm#StatusDescription">StatusDescription</a></li><li><a href="../../../../../Frack/Extensions.htm#ToDictionary">ToDictionary</a></li><li><a href="../../../../../Frack/Extensions.htm#writeTo``1">writeTo&lt;a&gt;</a></li><li><a href="../../../../../Frack/Extensions.htm#WriteToStream">WriteToStream</a></li>
 			</ul>
 
 
@@ -172,6 +172,14 @@
 
 
 		</div>
+	</div><div id="IResponse.WriteToStream" class="method">
+		<h4><span title="System.void">void</span> <strong>IResponse.WriteToStream</strong>(<span title="Owin.IResponse">IResponse</span> this, <span title="System.IO.Stream">Stream</span> stream)</h4>
+		<div class="content">
+
+
+
+
+		</div>
 	</div><div id="NameValueCollection.AsEnumerable" class="method">
 		<h4><span title="System.Collections.Generic.IEnumerable<Tuple<string, string>>">IEnumerable&lt;Tuple&lt;string, string&gt;&gt;</span> <strong>NameValueCollection.AsEnumerable</strong>(<span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> )</h4>
 		<div class="content">
@@ -247,6 +255,22 @@
 	</div><div id="ToDictionary" class="method">
 		<h4><span title="System.Collections.Generic.IDictionary<string, string>">IDictionary&lt;string, string&gt;</span> <strong>ToDictionary</strong>(this <span title="System.Collections.Specialized.NameValueCollection">NameValueCollection</span> this)</h4>
 		<div class="content">Extends NameValueCollection with methods to transform it to a dictionary.
+
+
+
+
+		</div>
+	</div><div id="writeTo``1" class="method">
+		<h4><span title="System.void">void</span> <strong>writeTo&lt;a&gt;</strong>(<span title="System.IO.Stream">Stream</span> stream, <span title="Frack.a">a</span> item)</h4>
+		<div class="content">
+
+
+
+
+		</div>
+	</div><div id="WriteToStream" class="method">
+		<h4><span title="System.void">void</span> <strong>WriteToStream</strong>(this <span title="Owin.IResponse">IResponse</span> response, <span title="System.IO.Stream">Stream</span> stream)</h4>
+		<div class="content">
 
 
 
