@@ -7,7 +7,6 @@
 #r "System.Web.dll"
 #r "System.Web.Abstractions.dll"
 #r "frack.dll"
-#r "Frack.Collections.dll"
 #r "Frack.HttpListener.dll"
 
 open System
