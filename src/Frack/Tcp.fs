@@ -20,6 +20,7 @@ open System
 open System.Net
 open System.Net.Sockets
 open System.Threading
+open FSharp.Control
 open Frack
 open Frack.Sockets
 
@@ -39,14 +40,13 @@ type Server(f, ?backlog) =
         listener.Bind(endpoint)
         listener.Listen(backlog)
         
-        let rec loop() = async {
-            let! socket = listener.AsyncAccept()
-            try
-                do! f socket
-            finally
-                socket.Shutdown(SocketShutdown.Both)
-                socket.Close()
-            return! loop() }
+        let run () = async {
+            for socket : Socket in listener.AcceptAsyncSeq() do
+                Async.StartWithContinuations(f socket, (fun () ->
+                    socket.Shutdown(SocketShutdown.Both)
+                    socket.Close()
+                ), ignore, ignore)
+        }
 
-        Async.Start(loop(), cancellationToken = cts.Token)
+        Async.Start(run (), cancellationToken = cts.Token)
         { new IDisposable with member x.Dispose() = cts.Cancel(); listener.Close() }
