@@ -7,6 +7,7 @@ open FSharp.Control
 open FSharpx
 
 type A = SocketAsyncEventArgs
+type BS = ByteString
 
 exception SocketIssue of SocketError with
     override this.ToString() = string this.Data0

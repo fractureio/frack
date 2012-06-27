@@ -3,6 +3,8 @@
 open FSharp.Control
 open FSharpx
 
+type BS = ByteString
+
 type BufferPool(totalBuffers, bufferSize) =
     let buffer = Array.zeroCreate<byte> (totalBuffers * bufferSize)
     let queue = FSharp.Control.BlockingQueueAgent<BS>(totalBuffers)

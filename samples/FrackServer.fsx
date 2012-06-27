@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //----------------------------------------------------------------------------
-#r @"..\packages\FSharpx.Core.1.6.1\lib\40\FSharpx.Core.dll"
+#r @"..\packages\FSharpx.Core.1.6.4\lib\40\FSharpx.Core.dll"
 #I @"..\src\Frack"
 #load "Owin.fs"
 #load "BufferPool.fs"
