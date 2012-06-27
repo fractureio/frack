@@ -28,7 +28,7 @@ let main argv =
             StatusCode = 200
             Headers = dict [| ("Content-Type", [|"text/plain"|]); ("Content-Length", [|"13"|]); ("Connection", [|"Close"|]) |]
             Body = asyncSeq { yield BS"Hello, world!"B }
-            Properties = dict [||]
+            Properties = null
         }
     })
 

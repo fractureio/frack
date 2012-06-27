@@ -13,7 +13,7 @@ exception SocketIssue of SocketError with
     override this.ToString() = string this.Data0
 
 /// Wraps the Socket.xxxAsync logic into F# async logic.
-let inline asyncDo (op: A -> bool) (prepare: A -> unit) (select: A -> 'T) =
+let asyncDo (op: A -> bool) (prepare: A -> unit) (select: A -> 'T) =
     Async.FromContinuations <| fun (ok, error, _) ->
         let args = new A()
         prepare args
@@ -54,8 +54,7 @@ type Socket with
             let! buf = pool.Pop()
             let! bytesRead = x.AsyncReceive(buf)
             if bytesRead > 0 then
-                // TODO: If bytesRead < the expected size, the remainder should be cleared and the Count updated appropriately.
-                yield buf
+                yield BS(buf.Array, buf.Offset, bytesRead)
                 do! pool.Push(buf)
                 yield! loop ()
             else
@@ -74,9 +73,9 @@ type Socket with
             | Cons(bs: BS, rest) ->
                 let! buf = pool.Pop()
                 System.Buffer.BlockCopy(bs.Array, bs.Offset, buf.Array, buf.Offset, bs.Count)
-                do! x.AsyncSend(buf)
+                do! x.AsyncSend(BS(buf.Array, buf.Offset, bs.Count))
                 do! pool.Push(buf)
                 do! loop rest
-            | Nil -> do! x.AsyncSend(BS""B)
+            | Nil -> ()
         }
         loop data

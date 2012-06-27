@@ -76,8 +76,8 @@ module Parser =
         | [] -> return Request.None
         | startLine::headers ->
             let request = {
-                Environment = new Dictionary<string, obj>()
-                Headers = new Dictionary<string, string[]>()
+                Environment = new Dictionary<_,_>(HashIdentity.Structural)
+                Headers = new Dictionary<_,_>(HashIdentity.Structural)
                 Body = source'
             }
             parseStartLine (startLine |> ByteString.toString, request)
