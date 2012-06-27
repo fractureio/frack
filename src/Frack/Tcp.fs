@@ -45,8 +45,12 @@ type Server(f, ?backlog) =
                 Async.StartWithContinuations(f socket, (fun () ->
                     socket.Shutdown(SocketShutdown.Both)
                     socket.Close()
-                ), printfn "%A", printfn "%A")
+                ), printfn "%A", printfn "%A", cts.Token)
         }
 
-        Async.Start(run (), cancellationToken = cts.Token)
-        { new IDisposable with member x.Dispose() = cts.Cancel(); listener.Close() }
+        Async.StartImmediate(run (), cancellationToken = cts.Token)
+        { new IDisposable with
+            member x.Dispose() =
+                cts.Cancel()
+                listener.Close()
+        }
