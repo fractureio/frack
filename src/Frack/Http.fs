@@ -105,26 +105,6 @@ type Server (app, ?backlog, ?bufferSize) =
     let backlog = defaultArg backlog 1000
     let bufferSize = defaultArg bufferSize 4096
     let pool = BufferPool(backlog, bufferSize)
-    
-    let toHttpStatusCode (i:int) = Enum.ToObject(typeof<HttpStatusCode>, i)
-
-    let responseToBytes (res: Response) = 
-        let headers =
-            String.Join(
-                "\r\n",
-                [|  yield sprintf "HTTP/1.1 %i %A" res.StatusCode <| Enum.ToObject(typeof<HttpStatusCode>, res.StatusCode)
-                    for KeyValue(header, values) in res.Headers do
-                        // TODO: Fix handling of certain headers where this approach is invalid, e.g. Set-Cookie
-                        yield sprintf "%s: %s" header <| String.Join(",", values)
-                    // Add the body separator.
-                    yield "\r\n"
-                |])
-            |> Encoding.ASCII.GetBytes
-
-        asyncSeq {
-            yield BS(headers)
-            yield! res.Body
-        }
 
     let tcp = Tcp.Server(fun socket -> async {
         Console.WriteLine("socket received")
@@ -132,7 +112,7 @@ type Server (app, ?backlog, ?bufferSize) =
         Console.WriteLine("request parsed")
         let! response = app request
         Console.WriteLine("sending response")
-        do! socket.SendAsyncSeq(responseToBytes response, pool)
+        do! socket.SendAsyncSeq(Response.toBytes response, pool)
     }, backlog)
 
     member x.Start(hostname: string, ?port) = tcp.Start(hostname, ?port = port)
