@@ -45,7 +45,7 @@ type Server(f, ?backlog) =
                 Async.StartWithContinuations(f socket, (fun () ->
                     socket.Shutdown(SocketShutdown.Both)
                     socket.Close()
-                ), ignore, ignore)
+                ), printfn "%A", printfn "%A")
         }
 
         Async.Start(run (), cancellationToken = cts.Token)
