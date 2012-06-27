@@ -77,6 +77,6 @@ type Socket with
                 do! x.AsyncSend(buf)
                 do! pool.Push(buf)
                 do! loop rest
-            | Nil -> do! x.AsyncSend(BS())
+            | Nil -> do! x.AsyncSend(BS""B)
         }
         loop data

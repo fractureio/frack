@@ -49,7 +49,7 @@ type Server(f, ?backlog) =
                 Async.StartWithContinuations(f socket, finish socket, printfn "%A" >> finish socket, printfn "%A" >> finish socket, cts.Token)
         }
 
-        Async.StartImmediate(run (), cancellationToken = cts.Token)
+        Async.Start(run (), cancellationToken = cts.Token)
         { new IDisposable with
             member x.Dispose() =
                 cts.Cancel()
