@@ -1,4 +1,5 @@
-﻿module Frack.Sockets
+﻿// Taken from http://t0yv0.blogspot.com/2011/11/f-web-server-from-sockets-and-up.html
+module Frack.Sockets
 
 open System.Net.Sockets
 open Frack
@@ -17,7 +18,7 @@ let inline asyncDo (op: A -> bool) (prepare: A -> unit) (select: A -> 'T) =
         prepare args
         let k (args: A) =
             match args.SocketError with
-            | System.Net.Sockets.SocketError.Success ->
+            | SocketError.Success ->
                 let result = select args
                 args.Dispose()
                 ok result
@@ -52,6 +53,7 @@ type Socket with
             let! buf = pool.Pop()
             let! bytesRead = x.AsyncReceive(buf)
             if bytesRead > 0 then
+                // TODO: If bytesRead < the expected size, the remainder should be cleared and the Count updated appropriately.
                 yield buf
                 do! pool.Push(buf)
                 yield! loop ()
@@ -70,7 +72,7 @@ type Socket with
             match chunk with
             | Cons(bs: BS, rest) ->
                 let! buf = pool.Pop()
-                Array.blit bs.Array bs.Offset buf.Array buf.Offset bs.Count
+                System.Buffer.BlockCopy(bs.Array, bs.Offset, buf.Array, buf.Offset, bs.Count)
                 do! x.AsyncSend(buf)
                 do! pool.Push(buf)
                 do! loop rest
