@@ -42,21 +42,6 @@ module Parser =
             | _ -> lines <| fun tail -> cont <| bs::tail
         lines id
 
-    // TODO: Both source and sink should include a close function or IDisposable.
-    // NOTE: source and sink could implement IObservable and IObserver, respectively, though that could be misleading as they are intended to be used together.
-    let rec connect sink source = async {
-        match sink with
-        // Delay pulling from the source until we know that the sink needs data.
-        | Continue k ->
-            let! res = source
-            match res with
-            | AsyncSeqInner.Nil ->
-                return run sink, AsyncSeq.empty
-            | Cons(s1, s2) ->
-                return! connect (k (Chunk s1)) s2
-        | _ -> return run sink, source
-    }
- 
     let private parseStartLine (line: string, request: Request) =
         let arr = line.Split([|' '|], 3)
         request.Environment.Add(Request.Version, "1.0")
