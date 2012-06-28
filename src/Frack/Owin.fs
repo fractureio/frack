@@ -53,10 +53,11 @@ type IAppBuilder =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Request =
     let Version = "owin.Version"
-    let Scheme = "owin.RequestScheme"
     let Method = "owin.RequestMethod"
+    let Scheme = "owin.RequestScheme"
     let PathBase = "owin.RequestPathBase"
     let Path = "owin.RequestPath"
     let QueryString = "owin.RequestQueryString"
+    let Protocol = "owin.RequestProtocol"
     let Headers = "owin.RequestHeaders"
     let Body = "owin.RequestBody"
