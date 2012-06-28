@@ -36,7 +36,14 @@ type Server(f, ?backlog) =
         let port = defaultArg port 80
         let endpoint = IPEndPoint(ipAddress, port)
         let cts = new CancellationTokenSource()
-        let listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+
+        let listener =
+            new Socket(
+                AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp,
+                ReceiveBufferSize = 16384,
+                SendBufferSize = 16384,
+                NoDelay = false, // This disables nagle on true
+                LingerState = LingerOption(true, 2))
         listener.Bind(endpoint)
         listener.Listen(backlog)
         
@@ -53,5 +60,6 @@ type Server(f, ?backlog) =
         { new IDisposable with
             member x.Dispose() =
                 cts.Cancel()
-                listener.Close()
+                if listener <> null then
+                    listener.Close(2)
         }
