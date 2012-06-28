@@ -114,3 +114,10 @@ type Socket with
             | Nil -> ()
         }
         loop data
+
+    member x.AsyncDisconnect () =
+        asyncDo x.DisconnectAsync ignore <| fun a ->
+            try
+                x.Shutdown(SocketShutdown.Send)
+            finally
+                x.Close()

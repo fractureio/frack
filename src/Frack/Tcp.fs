@@ -47,20 +47,25 @@ type Server(handle, ?backlog) =
         listener.Bind(endpoint)
         listener.Listen(backlog)
         
-        let close (connection: Socket) () =
-            connection.Shutdown(SocketShutdown.Both)
-            connection.Close()
+        let runHandler (connection: Socket) =
+            let finish comp = async {
+                let! choice = comp
+                do! connection.AsyncDisconnect()
+                match choice with
+                | Choice1Of2 () -> ()
+                | Choice2Of2 (e: exn) ->
+                    System.Diagnostics.Trace.TraceError("{0}", e)
+            }
+            handle connection
+            |> Async.Catch
+            |> finish
 
-        let run () = async {
+        let runServer () = async {
             for connection : Socket in listener.AcceptAsyncSeq() do
-                Async.StartWithContinuations(handle connection,
-                    close connection,
-                    printfn "%A" >> close connection,
-                    printfn "%A" >> close connection,
-                    cts.Token)
+                Async.StartImmediate(runHandler connection, cts.Token)
         }
 
-        Async.Start(run (), cancellationToken = cts.Token)
+        Async.StartImmediate(runServer (), cancellationToken = cts.Token)
         { new IDisposable with
             member x.Dispose() =
                 cts.Cancel()
