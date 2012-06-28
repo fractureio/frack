@@ -15,6 +15,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------------
 
+open System.Collections.Generic
 open FSharp.Control
 open FSharpx
 open Frack
@@ -23,9 +24,14 @@ open Frack
 let main argv = 
 
     let server = Http.Server(fun request -> async {
+        let headers = new Dictionary<_,_>(HashIdentity.Structural)
+        headers.Add("Content-Type", [|"text/plain"|])
+        headers.Add("Content-Length", [|"13"|])
+        if not <| Request.shouldKeepAlive request then
+            headers.Add("Connection", [|"Close"|])
         return {
             StatusCode = 200
-            Headers = dict [| ("Content-Type", [|"text/plain"|]); ("Content-Length", [|"13"|]); ("Connection", [|"Close"|]) |]
+            Headers = headers
             Body = asyncSeq { yield BS"Hello, world!"B }
             Properties = null
         }

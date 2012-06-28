@@ -17,6 +17,7 @@
 module Frack.Http
 
 open System.Net
+open System.Net.Sockets
 open Frack
 open Frack.Sockets
 
@@ -24,19 +25,19 @@ type Server (app, ?backlog, ?bufferSize) =
     let backlog = defaultArg backlog 1000
     let bufferSize = defaultArg bufferSize 4096
 
+    let rec run pool (socket: Socket) = async {
+        let! request = Request.parse <| socket.ReceiveAsyncSeq(pool)
+        let! response = app request
+        do! socket.SendAsyncSeq(Response.toBytes response, pool)
+        if Request.shouldKeepAlive request && socket.SetKeepAlive(250UL, 100UL) then
+            return! run pool socket
+    }
+
     member x.Start(hostname: string, ?port) =
         let ipAddress = Dns.GetHostEntry(hostname).AddressList.[0]
         x.Start(ipAddress, ?port = port)
 
     member x.Start(?ipAddress, ?port) = 
         let pool = BufferPool(backlog, bufferSize)
-
-        let tcp = Tcp.Server(fun socket -> async {
-            let! request = Request.parse <| socket.ReceiveAsyncSeq(pool)
-            let keepAlive = Request.shouldKeepAlive request
-            let! response = app request
-            do! socket.SendAsyncSeq(Response.toBytes response, pool)
-            return keepAlive
-        }, backlog)
-
+        let tcp = Tcp.Server(run pool, backlog)
         tcp.Start(?ipAddress = ipAddress, ?port = port)

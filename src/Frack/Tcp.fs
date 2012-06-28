@@ -24,7 +24,7 @@ open FSharp.Control
 open Frack
 open Frack.Sockets
 
-type Server(f, ?backlog) =
+type Server(handle, ?backlog) =
     let backlog = defaultArg backlog 1000
 
     member x.Start(hostname:string, ?port) =
@@ -51,19 +51,13 @@ type Server(f, ?backlog) =
             connection.Shutdown(SocketShutdown.Both)
             connection.Close()
 
-        let handle (connection: Socket) =
-            Async.StartWithContinuations(f connection,
-                (fun keepAlive ->
-                    if keepAlive then
-                        close connection ()
-                    else close connection ()),
-                printfn "%A" >> close connection,
-                printfn "%A" >> close connection,
-                cts.Token)
-
         let run () = async {
             for connection : Socket in listener.AcceptAsyncSeq() do
-                handle connection
+                Async.StartWithContinuations(handle connection,
+                    close connection,
+                    printfn "%A" >> close connection,
+                    printfn "%A" >> close connection,
+                    cts.Token)
         }
 
         Async.Start(run (), cancellationToken = cts.Token)
