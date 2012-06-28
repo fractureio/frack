@@ -38,11 +38,11 @@
   <Import Project="..\..\lib\FSharp\Microsoft.FSharp.Targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <ItemGroup>
-    <Compile Include="Frack.fs" />
-    <Compile Include="Owin.fs" />
     <Compile Include="BufferPool.fs" />
     <Compile Include="Sockets.fs" />
     <Compile Include="Tcp.fs" />
+    <Compile Include="Owin.fs" />
+    <Compile Include="Frack.fs" />
     <Compile Include="Http.fs" />
     <None Include="packages.config" />
   </ItemGroup>
