@@ -1,6 +1,8 @@
 ﻿// Taken from http://t0yv0.blogspot.com/2011/11/f-web-server-from-sockets-and-up.html
 module Frack.Sockets
+#nowarn "40"
 
+open System
 open System.Net.Sockets
 open Frack
 open FSharp.Control
@@ -13,22 +15,31 @@ exception SocketIssue of SocketError with
     override this.ToString() = string this.Data0
 
 /// Wraps the Socket.xxxAsync logic into F# async logic.
-let asyncDo (op: A -> bool) (prepare: A -> unit) (select: A -> 'T) =
-    Async.FromContinuations <| fun (ok, error, _) ->
+let asyncDo op prepare select =
+    Async.FromContinuations <| fun (ok, error, cancel) ->
         let args = new A()
         prepare args
         let k (args: A) =
             match args.SocketError with
             | SocketError.Success ->
-                let result = select args
                 args.Dispose()
-                ok result
+                ok <| select args
             | e ->
                 args.Dispose()
-                error (SocketIssue e)
-        args.add_Completed(System.EventHandler<_>(fun _ -> k))
+                error <| SocketIssue e
+        let rec finish cont value =
+            remover.Dispose()
+            cont value
+        and remover : IDisposable =
+            args.Completed.Subscribe
+                ({ new IObserver<_> with
+                    member x.OnNext(v) = finish k v
+                    member x.OnError(e) = finish error e
+                    member x.OnCompleted() =
+                        finish cancel <| System.OperationCanceledException("Cancelling the workflow, because the Observable awaited has completed.")
+                })
         if not (op args) then
-            k args
+            finish k args
 
 /// Prepares the arguments by setting the buffer.
 let inline setBuffer (buf: BS) (args: A) =
