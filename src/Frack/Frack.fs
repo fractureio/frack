@@ -98,8 +98,10 @@ module Response =
         let statusLine = getStatusLine response.StatusCode
 
         let headers = StringBuilder()
-        for (KeyValue(header, values)) in response.Headers do
-            headers.AppendFormat("{0}: {1}\r\n", header, (String.Join(",", values))) |> ignore
+        if response.Headers <> null then
+            for (KeyValue(header, values)) in response.Headers do
+                for value in values do
+                    headers.AppendFormat("{0}: {1}\r\n", header, value) |> ignore
         headers.Append("\r\n") |> ignore
 
         asyncSeq {
