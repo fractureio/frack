@@ -47,9 +47,9 @@ type Server(f, ?backlog) =
         listener.Bind(endpoint)
         listener.Listen(backlog)
         
-        let close (socket: Socket) () =
-            socket.Shutdown(SocketShutdown.Both)
-            socket.Close()
+        let close (connection: Socket) () =
+            connection.Shutdown(SocketShutdown.Both)
+            connection.Close()
 
         let run () = async {
             for connection : Socket in listener.AcceptAsyncSeq() do
