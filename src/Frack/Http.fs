@@ -86,16 +86,20 @@ module Parser =
     }
 
 type Server (app, ?backlog, ?bufferSize) =
-
     let backlog = defaultArg backlog 1000
     let bufferSize = defaultArg bufferSize 4096
-    let pool = BufferPool(backlog, bufferSize)
 
-    let tcp = Tcp.Server(fun socket -> async {
-        let! request = Parser.parse <| socket.ReceiveAsyncSeq(pool)
-        let! response = app request
-        do! socket.SendAsyncSeq(Response.toBytes response, pool)
-    }, backlog)
+    member x.Start(hostname: string, ?port) =
+        let ipAddress = Dns.GetHostEntry(hostname).AddressList.[0]
+        x.Start(ipAddress, ?port = port)
 
-    member x.Start(hostname: string, ?port) = tcp.Start(hostname, ?port = port)
-    member x.Start(?ipAddress, ?port) = tcp.Start(?ipAddress = ipAddress, ?port = port)
+    member x.Start(?ipAddress, ?port) = 
+        let pool = BufferPool(backlog, bufferSize)
+
+        let tcp = Tcp.Server(fun socket -> async {
+            let! request = Parser.parse <| socket.ReceiveAsyncSeq(pool)
+            let! response = app request
+            do! socket.SendAsyncSeq(Response.toBytes response, pool)
+        }, backlog)
+
+        tcp.Start(?ipAddress = ipAddress, ?port = port)
