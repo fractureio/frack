@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //----------------------------------------------------------------------------
-namespace Owin
+namespace Frack
 
 open System
 open System.Collections.Generic
@@ -23,6 +23,73 @@ open System.Threading
 open System.Threading.Tasks
 open FSharp.Control
 open FSharpx
+open FSharpx.Iteratee
+open FSharpx.Iteratee.Binary
+open Owin
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Request =
+
+    let readHeaders =
+        let rec lines cont = readLine >>= fun bs -> skipNewline >>= check cont bs
+        and check cont bs count =
+            match bs, count with
+            | bs, _ when ByteString.isEmpty bs -> Done(cont [], EOF)
+            | bs, 0 -> Done(cont [bs], EOF)
+            | _ -> lines <| fun tail -> cont <| bs::tail
+        lines id
+
+    let private parseStartLine (line: string, request: Request) =
+        let arr = line.Split([|' '|], 3)
+        request.Environment.Add(Request.Version, "1.0")
+        request.Environment.Add(Request.Method, arr.[0])
+
+        let uri = Uri(arr.[1], UriKind.RelativeOrAbsolute)
+
+        // TODO: Fix this so that the path can be determined correctly.
+        request.Environment.Add(Request.PathBase, "")
+
+        if uri.IsAbsoluteUri then
+            request.Environment.Add(Request.Path, uri.AbsolutePath)
+            request.Environment.Add(Request.QueryString, uri.Query)
+            request.Environment.Add(Request.Scheme, uri.Scheme)
+            request.Headers.Add("Host", [|uri.Host|])
+        else
+            request.Environment.Add(Request.Path, uri.OriginalString)
+
+        let protocol = Version.Parse(arr.[2].Trim())
+        request.Environment.Add(Request.Protocol, protocol)
+
+    let private parseHeader (header: string, request: Owin.Request) =
+        // TODO: Proper header parsing.
+        let pair = header.Split([|':'|], 2)
+        if pair.Length > 1 then
+            request.Headers.[pair.[0]] <- [| pair.[1].TrimStart(' ') |]
+
+    let parse source = async {
+        let! result, source' = source |> connect readHeaders
+        match result with
+        | [] -> return Request.None
+        | startLine::headers ->
+            let request = {
+                Environment = new Dictionary<_,_>(HashIdentity.Structural)
+                Headers = new Dictionary<_,_>(HashIdentity.Structural)
+                Body = source'
+            }
+            parseStartLine (startLine |> ByteString.toString, request)
+            headers |> List.iter (fun h -> parseHeader(h |> ByteString.toString, request))
+            return request
+    }
+
+    let shouldKeepAlive (request: Request) =
+        let connection =
+            if request.Headers.ContainsKey("Connection") then
+                request.Headers.["Connection"]
+            else Array.empty
+        match string request.Environment.[Request.Protocol] with
+        | "HTTP/1.1" -> Array.isEmpty connection || not (connection |> Array.exists ((=) "Close"))
+        | "HTTP/1.0" -> not (Array.isEmpty connection) && connection |> Array.exists ((=) "Keep-Alive")
+        | _ -> false
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Response =
