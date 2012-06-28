@@ -13,7 +13,7 @@
     <Name>Frack</Name>
     <FscToolPath>..\..\lib\FSharp\</FscToolPath>
     <TargetFrameworkProfile />
-		<RestorePackages>true</RestorePackages>
+    <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -36,8 +36,9 @@
     <DocumentationFile>bin\Release\frack.XML</DocumentationFile>
   </PropertyGroup>
   <Import Project="..\..\lib\FSharp\Microsoft.FSharp.Targets" />
-	<Import Project="$(SolutionDir)\.nuget\nuget.targets"/>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <ItemGroup>
+    <Compile Include="Frack.fs" />
     <Compile Include="Owin.fs" />
     <Compile Include="BufferPool.fs" />
     <Compile Include="Sockets.fs" />

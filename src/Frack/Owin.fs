@@ -60,27 +60,3 @@ module Request =
     let QueryString = "owin.RequestQueryString"
     let Headers = "owin.RequestHeaders"
     let Body = "owin.RequestBody"
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Response =
-    open System.Net
-    open System.Text
-
-    let toBytes response = 
-        let headers =
-            String.Join(
-                "\r\n",
-                [|  yield sprintf "HTTP/1.1 %i %A" response.StatusCode
-                            <| Enum.ToObject(typeof<HttpStatusCode>, response.StatusCode)
-                    for KeyValue(header, values) in response.Headers do
-                        // TODO: Fix handling of certain headers where this approach is invalid, e.g. Set-Cookie
-                        yield sprintf "%s: %s" header <| String.Join(",", values)
-                    // Add the body separator.
-                    yield "\r\n"
-                |])
-            |> Encoding.ASCII.GetBytes
-
-        asyncSeq {
-            yield BS(headers)
-            yield! response.Body
-        }
