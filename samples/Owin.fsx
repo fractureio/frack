@@ -36,16 +36,16 @@ Accept: application/json
 }
 
 //----------------------------------------------------------------------------
-// Http.Parser
+// Request
 #time
-let request = Http.Parser.parse source |> Async.RunSynchronously
+let request = Request.parse source |> Async.RunSynchronously
 #time
 
 //----------------------------------------------------------------------------
-// Http.Parser + read body
+// Request + read body
 #time
 async {
-    let! request = Http.Parser.parse source
+    let! request = Request.parse source
     let! body = request.Body |> AsyncSeq.fold ByteString.append ByteString.empty
     return request, body
 } |> Async.RunSynchronously
@@ -64,7 +64,7 @@ let app request = async {
 
 #time
 async {
-    let! request = Http.Parser.parse source
+    let! request = Request.parse source
     return! app request
 } |> Async.RunSynchronously
 #time
@@ -73,7 +73,7 @@ async {
 // Run an OWIN application + read the response body
 #time
 async {
-    let! request = Http.Parser.parse source
+    let! request = Request.parse source
     let! response = app request
     let! body = response.Body |> AsyncSeq.fold ByteString.append ByteString.empty
     return response, body |> ByteString.toString
@@ -84,7 +84,7 @@ async {
 // Run an OWIN application + transform the response to bytes
 #time
 async {
-    let! request = Http.Parser.parse source
+    let! request = Request.parse source
     let! response = app request
     let! bytes = Response.toBytes response |> AsyncSeq.fold ByteString.append ByteString.empty
     return bytes |> ByteString.toString
