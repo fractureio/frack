@@ -47,13 +47,13 @@ type Server(f, ?backlog) =
         listener.Bind(endpoint)
         listener.Listen(backlog)
         
-        let finish (socket: Socket) () =
+        let close (socket: Socket) () =
             socket.Shutdown(SocketShutdown.Both)
             socket.Close()
 
         let run () = async {
-            for socket : Socket in listener.AcceptAsyncSeq() do
-                Async.StartWithContinuations(f socket, finish socket, printfn "%A" >> finish socket, printfn "%A" >> finish socket, cts.Token)
+            for connection : Socket in listener.AcceptAsyncSeq() do
+                Async.StartWithContinuations(f connection, close connection, printfn "%A" >> close connection, printfn "%A" >> close connection, cts.Token)
         }
 
         Async.Start(run (), cancellationToken = cts.Token)
