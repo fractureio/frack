@@ -33,8 +33,10 @@ type Server (app, ?backlog, ?bufferSize) =
 
         let tcp = Tcp.Server(fun socket -> async {
             let! request = Request.parse <| socket.ReceiveAsyncSeq(pool)
+            let keepAlive = Request.shouldKeepAlive request
             let! response = app request
             do! socket.SendAsyncSeq(Response.toBytes response, pool)
+            return keepAlive
         }, backlog)
 
         tcp.Start(?ipAddress = ipAddress, ?port = port)

@@ -53,7 +53,11 @@ type Server(f, ?backlog) =
 
         let run () = async {
             for connection : Socket in listener.AcceptAsyncSeq() do
-                Async.StartWithContinuations(f connection, close connection, printfn "%A" >> close connection, printfn "%A" >> close connection, cts.Token)
+                Async.StartWithContinuations(f connection,
+                    (fun keepAlive -> if keepAlive then close connection () else close connection ()),
+                    printfn "%A" >> close connection,
+                    printfn "%A" >> close connection,
+                    cts.Token)
         }
 
         Async.Start(run (), cancellationToken = cts.Token)
