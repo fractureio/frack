@@ -57,8 +57,7 @@ module Request =
         else
             request.Environment.Add(Request.Path, uri.OriginalString)
 
-        let protocol = Version.Parse(arr.[2].Trim())
-        request.Environment.Add(Request.Protocol, protocol)
+        request.Environment.Add(Request.Protocol, arr.[2].Trim())
 
     let private parseHeader (header: string, request: Owin.Request) =
         // TODO: Proper header parsing.
