@@ -54,8 +54,9 @@ type Socket with
             let! buf = pool.Pop()
             let! bytesRead = x.AsyncReceive(buf)
             if bytesRead > 0 then
-                yield BS(buf.Array, buf.Offset, bytesRead)
+                let chunk = BS(buf.Array.[buf.Offset..buf.Offset + bytesRead])
                 do! pool.Push(buf)
+                yield chunk
                 yield! loop ()
             else
                 do! pool.Push(buf)

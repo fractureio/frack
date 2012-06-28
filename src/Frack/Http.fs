@@ -92,11 +92,8 @@ type Server (app, ?backlog, ?bufferSize) =
     let pool = BufferPool(backlog, bufferSize)
 
     let tcp = Tcp.Server(fun socket -> async {
-        Console.WriteLine("socket received")
         let! request = Parser.parse <| socket.ReceiveAsyncSeq(pool)
-        Console.WriteLine("request parsed")
         let! response = app request
-        Console.WriteLine("sending response")
         do! socket.SendAsyncSeq(Response.toBytes response, pool)
     }, backlog)
 

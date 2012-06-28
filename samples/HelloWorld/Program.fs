@@ -23,7 +23,6 @@ open Frack
 let main argv = 
 
     let server = Http.Server(fun request -> async {
-        System.Console.WriteLine("Request received")
         return {
             StatusCode = 200
             Headers = dict [| ("Content-Type", [|"text/plain"|]); ("Content-Length", [|"13"|]); ("Connection", [|"Close"|]) |]
