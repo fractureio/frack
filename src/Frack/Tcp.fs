@@ -51,13 +51,19 @@ type Server(f, ?backlog) =
             connection.Shutdown(SocketShutdown.Both)
             connection.Close()
 
+        let handle (connection: Socket) =
+            Async.StartWithContinuations(f connection,
+                (fun keepAlive ->
+                    if keepAlive then
+                        close connection ()
+                    else close connection ()),
+                printfn "%A" >> close connection,
+                printfn "%A" >> close connection,
+                cts.Token)
+
         let run () = async {
             for connection : Socket in listener.AcceptAsyncSeq() do
-                Async.StartWithContinuations(f connection,
-                    (fun keepAlive -> if keepAlive then close connection () else close connection ()),
-                    printfn "%A" >> close connection,
-                    printfn "%A" >> close connection,
-                    cts.Token)
+                handle connection
         }
 
         Async.Start(run (), cancellationToken = cts.Token)
