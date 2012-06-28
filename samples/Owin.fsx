@@ -15,12 +15,12 @@
 // limitations under the License.
 //----------------------------------------------------------------------------
 #r @"..\packages\FSharpx.Core.1.6.4\lib\40\FSharpx.Core.dll"
-#I @"..\src\Frack"
-#load "Owin.fs"
-#load "BufferPool.fs"
-#load "Sockets.fs"
-#load "Tcp.fs"
-#load "Http.fs"
+#load @"..\src\Frack\BufferPool.fs"
+#load @"..\src\Frack\Sockets.fs"
+#load @"..\src\Frack\Tcp.fs"
+#load @"..\src\Frack\Owin.fs"
+#load @"..\src\Frack\Frack.fs"
+#load @"..\src\Frack\Http.fs"
 
 open FSharp.Control
 open FSharpx
