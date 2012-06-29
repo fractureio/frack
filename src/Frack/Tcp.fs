@@ -37,9 +37,17 @@ type Server(handle, ?backlog) =
         let endpoint = IPEndPoint(ipAddress, port)
         let cts = new CancellationTokenSource()
 
-        let listener = Sockets.createTcpSocket()
+        let listener =
+            new Socket(
+                AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp,
+                ReceiveBufferSize = 16384,
+                SendBufferSize = 16384,
+                NoDelay = false, // This disables nagle on true
+                LingerState = LingerOption(true, 2))
         listener.Bind(endpoint)
         listener.Listen(backlog)
+
+        let log (e: exn) = Console.WriteLine(e)
         
         let runHandler (connection: Socket) =
             let finish comp = async {
@@ -53,8 +61,6 @@ type Server(handle, ?backlog) =
             handle connection
             |> Async.Catch
             |> finish
-
-        let log (e: exn) = Console.WriteLine("{0}", e)
 
         let runServer () = async {
             for connection : Socket in listener.AsyncAcceptSeq() do
