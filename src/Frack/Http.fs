@@ -29,7 +29,7 @@ type Server (app, ?backlog, ?bufferSize) =
         let! request = Request.parse <| socket.AsyncReceiveSeq(pool)
         let! response = app request
         do! socket.AsyncSendSeq(Response.toBytes response, pool)
-        if Request.shouldKeepAlive request && socket.SetKeepAlive(250UL, 100UL) then
+        if Request.shouldKeepAlive request then
             do! socket.AsyncSend(BS""B, pool)
             return! run pool socket
     }

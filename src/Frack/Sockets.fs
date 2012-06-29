@@ -58,26 +58,6 @@ let private bytesPerLong = 4
 let private bitsPerByte = 8
 
 type Socket with
-    member x.SetKeepAlive(time, interval) =
-        try
-            // Array to hold input values
-            let input = [| (if time = 0UL || interval = 0UL then 0UL else 1UL); time; interval |]
-            // Pack input into byte struct
-            let inValue = Array.zeroCreate (3 * bytesPerLong)
-            for i in 0..input.Length - 1 do
-                inValue.[i * bytesPerLong + 3] <- Convert.ToByte(input.[i] >>> ((bytesPerLong - 1) * bitsPerByte) &&& 0xffUL)
-                inValue.[i * bytesPerLong + 2] <- Convert.ToByte(input.[i] >>> ((bytesPerLong - 2) * bitsPerByte) &&& 0xffUL)
-                inValue.[i * bytesPerLong + 1] <- Convert.ToByte(input.[i] >>> ((bytesPerLong - 3) * bitsPerByte) &&& 0xffUL)
-                inValue.[i * bytesPerLong + 0] <- Convert.ToByte(input.[i] >>> ((bytesPerLong - 4) * bitsPerByte) &&& 0xffUL)
-            // Create bytestruct for result (bytes pending on server socket).
-            let outValue = BitConverter.GetBytes(0)
-            // Write SIO_VALS to Socket.IOControl.
-            x.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, true)
-            x.IOControl(IOControlCode.KeepAliveValues, inValue, outValue) |> ignore
-            true
-        with
-        | :? SocketException as e -> false
-
     member x.AsyncAccept () =
         asyncDo x.AcceptAsync ignore (fun a -> a.AcceptSocket)
 
@@ -90,10 +70,10 @@ type Socket with
         loop ()
 
     member x.AsyncReceive (bufferPool: BufferPool) = async {
-        let! buf = bufferPool.Pop()
+        let buf = bufferPool.Take()
         let! bytesRead = asyncDo x.ReceiveAsync (setBuffer buf) (fun a -> a.BytesTransferred)
         let chunk = BS(buf.Array.[buf.Offset..buf.Offset + bytesRead])
-        do! bufferPool.Push(buf)
+        bufferPool.Add(buf)
         return bytesRead, chunk
     }
 
@@ -107,10 +87,10 @@ type Socket with
         loop ()
 
     member x.AsyncSend (bs: BS, bufferPool: BufferPool) = async {
-        let! buf = bufferPool.Pop()
+        let buf = bufferPool.Take()
         System.Buffer.BlockCopy(bs.Array, bs.Offset, buf.Array, buf.Offset, bs.Count)
         do! asyncDo x.SendAsync (setBuffer (BS(buf.Array, buf.Offset, buf.Count))) ignore
-        do! bufferPool.Push(buf)
+        bufferPool.Add(buf)
     }
 
     member x.AsyncSendSeq (data, bufferPool: BufferPool) =
