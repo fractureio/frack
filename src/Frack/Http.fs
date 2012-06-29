@@ -30,7 +30,6 @@ type Server (app, ?backlog, ?bufferSize) =
         let! response = app request
         do! socket.AsyncSendSeq(Response.toBytes response, pool)
         if Request.shouldKeepAlive request then
-            do! socket.AsyncSend(BS""B, pool)
             return! run pool socket
     }
 
