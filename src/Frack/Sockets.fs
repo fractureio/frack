@@ -89,36 +89,36 @@ type Socket with
         }
         loop ()
 
-    member x.AsyncReceive (pool: BufferPool) = async {
-        let! buf = pool.Pop()
+    member x.AsyncReceive (bufferPool: BufferPool) = async {
+        let! buf = bufferPool.Pop()
         let! bytesRead = asyncDo x.ReceiveAsync (setBuffer buf) (fun a -> a.BytesTransferred)
         let chunk = BS(buf.Array.[buf.Offset..buf.Offset + bytesRead])
-        do! pool.Push(buf)
+        do! bufferPool.Push(buf)
         return bytesRead, chunk
     }
 
-    member x.AsyncReceiveSeq (pool: BufferPool) =
+    member x.AsyncReceiveSeq (bufferPool: BufferPool) =
         let rec loop () = asyncSeq {
-            let! bytesRead, chunk = x.AsyncReceive(pool)
+            let! bytesRead, chunk = x.AsyncReceive(bufferPool)
             if bytesRead > 0 then
                 yield chunk
                 yield! loop ()
         }
         loop ()
 
-    member x.AsyncSend (bs: BS, pool: BufferPool) = async {
-        let! buf = pool.Pop()
+    member x.AsyncSend (bs: BS, bufferPool: BufferPool) = async {
+        let! buf = bufferPool.Pop()
         System.Buffer.BlockCopy(bs.Array, bs.Offset, buf.Array, buf.Offset, bs.Count)
         do! asyncDo x.SendAsync (setBuffer (BS(buf.Array, buf.Offset, buf.Count))) ignore
-        do! pool.Push(buf)
+        do! bufferPool.Push(buf)
     }
 
-    member x.AsyncSendSeq (data, pool: BufferPool) =
+    member x.AsyncSendSeq (data, bufferPool: BufferPool) =
         let rec loop data = async {
             let! chunk = data
             match chunk with
             | Cons(bs: BS, rest) ->
-                do! x.AsyncSend(bs, pool)
+                do! x.AsyncSend(bs, bufferPool)
                 do! loop rest
             | Nil -> ()
         }
