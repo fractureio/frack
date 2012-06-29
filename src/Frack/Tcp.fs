@@ -57,7 +57,7 @@ type Server(handle, ?backlog) =
         let log (e: exn) = Console.WriteLine("{0}", e)
 
         let runServer () = async {
-            for connection : Socket in listener.AcceptAsyncSeq() do
+            for connection : Socket in listener.AsyncAcceptSeq() do
                 Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
         }
 

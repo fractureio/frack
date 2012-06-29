@@ -81,7 +81,7 @@ type Socket with
     member x.AsyncAccept () =
         asyncDo x.AcceptAsync ignore (fun a -> a.AcceptSocket)
 
-    member x.AcceptAsyncSeq () =
+    member x.AsyncAcceptSeq () =
         let rec loop () = asyncSeq {
             let! socket = x.AsyncAccept()
             yield socket
@@ -97,7 +97,7 @@ type Socket with
         return bytesRead, chunk
     }
 
-    member x.ReceiveAsyncSeq (pool: BufferPool) =
+    member x.AsyncReceiveSeq (pool: BufferPool) =
         let rec loop () = asyncSeq {
             let! bytesRead, chunk = x.AsyncReceive(pool)
             if bytesRead > 0 then
@@ -113,7 +113,7 @@ type Socket with
         do! pool.Push(buf)
     }
 
-    member x.SendAsyncSeq (data, pool: BufferPool) =
+    member x.AsyncSendSeq (data, pool: BufferPool) =
         let rec loop data = async {
             let! chunk = data
             match chunk with

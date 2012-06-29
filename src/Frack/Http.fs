@@ -26,9 +26,9 @@ type Server (app, ?backlog, ?bufferSize) =
     let bufferSize = defaultArg bufferSize 4096
 
     let rec run pool (socket: Socket) = async {
-        let! request = Request.parse <| socket.ReceiveAsyncSeq(pool)
+        let! request = Request.parse <| socket.AsyncReceiveSeq(pool)
         let! response = app request
-        do! socket.SendAsyncSeq(Response.toBytes response, pool)
+        do! socket.AsyncSendSeq(Response.toBytes response, pool)
         if Request.shouldKeepAlive request && socket.SetKeepAlive(250UL, 100UL) then
             do! socket.AsyncSend(BS""B, pool)
             return! run pool socket
