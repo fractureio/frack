@@ -1,4 +1,3 @@
-
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
@@ -30,7 +29,8 @@ _ReSharper*/
 build/
 deploy/
 docs/
-tools/FAKE/templates/
+nuget/
 test/
-*_Spliced.*
 packages/
+*_Spliced.*
+*.vsp

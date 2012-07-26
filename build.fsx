@@ -1,108 +1,154 @@
-#I "tools/FAKE"
+#I "./packages/FAKE.1.64.6/tools"
 #r "FakeLib.dll"
-open Fake 
-open Fake.MSBuild
 
-(* properties *)
-let projectName = "frack"
-let version = "0.8.0"  
+open Fake
+open System.IO
 
-(* Directories *)
+// properties
+let projectName = "Frack"
+let version = if isLocalBuild then "0.1." + System.DateTime.UtcNow.ToString("yMMdd") else buildVersion
+let projectSummary = "Frack is a F# based socket implementation for high-speed, high-throughput applications."
+let projectDescription = "Frack is an F# based socket implementation for high-speed, high-throughput applications. It is built on top of SocketAsyncEventArgs, which minimises the memory fragmentation common in the IAsyncResult pattern."
+let authors = ["Dave Thomas";"Ryan Riley"]
+let mail = "ryan.riley@panesofglass.org"
+let homepage = "http://github.com/panesofglass/frack"
+let license = "http://github.com/panesofglass/frack/raw/master/LICENSE.txt"
+
+// directories
 let buildDir = "./build/"
-let docsDir = "./docs/" 
-let deployDir = "./deploy/"
+let packagesDir = "./packages/"
 let testDir = "./test/"
+let deployDir = "./deploy/"
+let docsDir = "./docs/"
 
-(* Tools *)
-let nunitPath = "./tools/Nunit"
-let nunitOutput = testDir + "TestResults.xml"
-let zipFileName = deployDir + sprintf "%s-%s.zip" projectName version
+let targetPlatformDir = getTargetPlatformDir "4.0.30319"
 
-(* files *)
+let nugetDir = "./nuget/"
+let nugetLibDir = nugetDir @@ "lib/net40"
+let nugetDocsDir = nugetDir @@ "docs"
+
+let fsharpxVersion = GetPackageVersion packagesDir "FSharpx.Core"
+
+// params
+let target = getBuildParamOrDefault "target" "All"
+
+// tools
+let fakePath = "./packages/FAKE.1.64.6/tools"
+let nugetPath = "./.nuget/nuget.exe"
+let nunitPath = "./packages/NUnit.Runners.2.6.0.12051/tools"
+
+// files
 let appReferences =
-    !+ @"src\**\*.csproj" 
-      ++ @"src\**\*.fsproj"
-      -- "**\*_Spliced*" 
+    !+ "./src/**/*.fsproj"
         |> Scan
 
+let testReferences =
+    !+ "./tests/**/*.fsproj"
+      |> Scan
+
 let filesToZip =
-  !+ (buildDir + "/**/*.*")     
-      -- "*.zip"
-      |> Scan      
+    !+ (buildDir + "/**/*.*")
+        -- "*.zip"
+        |> Scan
 
-(* Targets *)
-Target? Clean <-
-    fun _ -> CleanDirs [buildDir; testDir; deployDir; docsDir]
+// targets
+Target "Clean" (fun _ ->
+    CleanDirs [buildDir; testDir; deployDir; docsDir]
+)
 
-Target? BuildApp <-
-    fun _ ->
-        if isLocalBuild then
-          Git.Submodule.init "" ""
+Target "BuildApp" (fun _ ->
+    AssemblyInfo (fun p ->
+        {p with 
+            CodeLanguage = FSharp
+            AssemblyVersion = version
+            AssemblyTitle = projectSummary
+            AssemblyDescription = projectDescription
+            Guid = "020697d7-24a3-4ce4-a326-d2c7c204ffde"
+            OutputFileName = "./src/Frack/AssemblyInfo.fs" })
 
-        if not isLocalBuild then
-          AssemblyInfo 
-           (fun p -> 
-              {p with
-                 CodeLanguage = FSharp;
-                 AssemblyVersion = buildVersion;
-                 AssemblyTitle = "frack";
-                 AssemblyDescription = "An implementation of NWSGI (.NET Web Server Gateway Interface) written in F#.";
-                 Guid = "5017411A-CF26-4E1A-85D6-1C49470C5996";
-                 OutputFileName = "./src/AssemblyInfo.fs"})
+    MSBuildRelease buildDir "Build" appReferences
+        |> Log "AppBuild-Output: "
+)
 
-        appReferences
-          |> Seq.map (RemoveTestsFromProject AllNUnitReferences AllSpecAndTestDataFiles)
-          |> MSBuildRelease buildDir "Build"
-          |> Log "AppBuild-Output: "
+Target "BuildTest" (fun _ ->
+    MSBuildDebug testDir "Build" testReferences
+        |> Log "TestBuild-Output: "
+)
 
-Target? BuildTest <-
-    fun _ -> 
-        appReferences
-          |> MSBuildDebug testDir "Build"
-          |> Log "TestBuild-Output: "
+Target "Test" (fun _ ->
+    !+ (testDir + "/*.Tests.dll")
+        |> Scan
+        |> NUnit (fun p ->
+            {p with
+                ToolPath = nunitPath
+                DisableShadowCopy = true
+                OutputFile = testDir + "TestResults.xml" })
+)
 
-Target? Test <-
-    fun _ ->
-        !+ (testDir + "/*.dll")
-          |> Scan
-          |> NUnit (fun p -> 
-                      {p with 
-                         ToolPath = nunitPath; 
-                         DisableShadowCopy = true; 
-                         OutputFile = nunitOutput}) 
-
-Target? GenerateDocumentation <-
-    fun _ ->
-      !+ (buildDir + "frack.dll")      
+Target "GenerateDocumentation" (fun _ ->
+    !+ (buildDir + "*.dll")
         |> Scan
         |> Docu (fun p ->
             {p with
-               ToolPath = "./tools/FAKE/docu.exe"
-               TemplatesPath = "./tools/FAKE/templates"
-               OutputPath = docsDir })
+                ToolPath = fakePath + "/docu.exe"
+                TemplatesPath = "./lib/templates"
+                OutputPath = docsDir })
+)
 
-Target? BuildZip <-
-    fun _ -> Zip buildDir zipFileName filesToZip
+Target "CopyLicense" (fun _ ->
+    [ "LICENSE.txt" ] |> CopyTo buildDir
+)
 
-Target? ZipDocumentation <-
-    fun _ ->    
-        let docFiles = 
-          !+ (docsDir + "/**/*.*")
-            |> Scan
-        let zipFileName = deployDir + sprintf "Documentation-%s.zip" version
-        Zip docsDir zipFileName docFiles
+Target "ZipDocumentation" (fun _ ->
+    !+ (docsDir + "/**/*.*")
+        |> Scan
+        |> Zip docsDir (deployDir + sprintf "Documentation-%s.zip" version)
+)
 
-Target? Default <- DoNothing
-Target? Deploy <- DoNothing
+Target "BuildNuGet" (fun _ ->
+    CleanDirs [nugetDir; nugetLibDir; nugetDocsDir]
 
-// Dependencies
-For? BuildApp <- Dependency? Clean
-For? Test <- Dependency? BuildApp |> And? BuildTest
-For? GenerateDocumentation <- Dependency? BuildApp
-For? ZipDocumentation <- Dependency? GenerateDocumentation
-For? BuildZip <- Dependency? Test
-For? Deploy <- Dependency? ZipDocumentation |> And? BuildZip
-For? Default <- Dependency? Deploy
+    XCopy (docsDir |> FullName) nugetDocsDir
+    [ buildDir + "Frack.dll"
+      buildDir + "Frack.pdb" ]
+        |> CopyTo nugetLibDir
 
-// start build
-Run? Default
+    NuGet (fun p -> 
+        {p with               
+            Authors = authors
+            Project = projectName
+            Description = projectDescription
+            Version = version
+            OutputPath = nugetDir
+            Dependencies = ["FSharpx.Core",RequireExactly fsharpxVersion]
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            ToolPath = nugetPath
+            Publish = hasBuildParam "nugetKey" })
+        "frack.nuspec"
+
+    [nugetDir + sprintf "Frack.%s.nupkg" version]
+        |> CopyTo deployDir
+)
+
+Target "Deploy" (fun _ ->
+    !+ (buildDir + "/**/*.*")
+        -- "*.zip"
+        |> Scan
+        |> Zip buildDir (deployDir + sprintf "%s-%s.zip" projectName version)
+)
+
+Target "All" DoNothing
+
+// Build order
+"Clean"
+  ==> "BuildApp" <=> "CopyLicense"
+//  ==> "GenerateDocumentation"
+//  ==> "ZipDocumentation"
+  ==> "BuildNuGet"
+  ==> "Deploy"
+
+"All" <== ["Deploy"]
+
+// Start build
+Run target
+

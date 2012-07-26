@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package>
-  <metadata>
-    <id>frack</id>
-    <version>0.8.1</version>
-    <authors>Ryan Riley</authors>
-    <description>An implementation of NWSGI (.NET Web Server Gateway Interface) written in F#.</description>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
     <language>en-US</language>
+    <summary>@description@</summary>
+    <projectUrl>http://github.com/panesofglass/frack</projectUrl>
+    <licenseUrl>http://github.com/panesofglass/frack/raw/master/LICENSE.txt</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>@description@</description>
+    <tags>socket networking tcp http fsharp</tags>
+    @dependencies@
   </metadata>
-  <files src="build\*.dll" target="lib" />
-  <files src="build\*.xml" target="lib" />
 </package>
-
