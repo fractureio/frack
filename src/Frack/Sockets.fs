@@ -15,15 +15,16 @@ exception SocketIssue of SocketError with
     override this.ToString() = string this.Data0
 
 /// Wraps the Socket.xxxAsync logic into F# async logic.
-let asyncDo op prepare select =
+let inline asyncDo op prepare select =
     Async.FromContinuations <| fun (ok, error, cancel) ->
         let args = new A()
         prepare args
         let k (args: A) =
             match args.SocketError with
             | SocketError.Success ->
+                let result = select args
                 args.Dispose()
-                ok <| select args
+                ok result
             | e ->
                 args.Dispose()
                 error <| SocketIssue e
@@ -52,9 +53,13 @@ type Socket with
     member x.AsyncAccept () =
         asyncDo x.AcceptAsync ignore (fun a -> a.AcceptSocket)
 
-    member x.AsyncAcceptSeq () =
+    member x.AsyncAcceptSeq (?receiveTimeout, ?sendTimeout) =
+        let receiveTimeout = defaultArg receiveTimeout 1000
+        let sendTimeout = defaultArg sendTimeout 1000
         let rec loop () = asyncSeq {
             let! socket = x.AsyncAccept()
+            socket.ReceiveTimeout <- receiveTimeout
+            socket.SendTimeout <- sendTimeout
             yield socket
             yield! loop ()
         }
@@ -96,6 +101,6 @@ type Socket with
     member x.AsyncDisconnect () =
         asyncDo x.DisconnectAsync ignore <| fun a ->
             try
-                x.Shutdown(SocketShutdown.Send)
+                x.Shutdown(SocketShutdown.Both)
             finally
                 x.Close()
