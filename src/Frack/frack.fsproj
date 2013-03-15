@@ -38,10 +38,10 @@
   <Import Project="..\..\lib\FSharp\Microsoft.FSharp.Targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <ItemGroup>
-    <Compile Include="BufferPool.fs" />
+    <Compile Include="Owin.fs" />
+    <Compile Include="BocketPool.fs" />
     <Compile Include="Sockets.fs" />
     <Compile Include="Tcp.fs" />
-    <Compile Include="Owin.fs" />
     <Compile Include="Frack.fs" />
     <Compile Include="Http.fs" />
     <None Include="packages.config" />
@@ -54,6 +54,10 @@
       <HintPath>..\..\packages\FSharpx.Core.1.6.4\lib\40\Fsharpx.Core.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="Owin">
+      <HintPath>..\..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />

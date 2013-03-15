@@ -16,10 +16,12 @@
 //----------------------------------------------------------------------------
 module Frack.Http
 
+open System
 open System.Net
 open System.Net.Sockets
 open Frack
 open Frack.Sockets
+open Fracture
 
 type Server (app, ?backlog, ?bufferSize) =
     let backlog = defaultArg backlog 1000
@@ -29,15 +31,22 @@ type Server (app, ?backlog, ?bufferSize) =
         let! request = Request.parse <| socket.AsyncReceiveSeq(pool)
         let! response = app request
         do! socket.AsyncSendSeq(Response.toBytes response, pool)
-        if Request.shouldKeepAlive request then
-            return! run pool socket
+//        if Request.shouldKeepAlive request then
+//            return! run pool socket
     }
 
-    member x.Start(hostname: string, ?port) =
+    member x.Start(hostname: string, ?port, ?maxPoolCount, ?perBocketBufferSize) =
         let ipAddress = Dns.GetHostEntry(hostname).AddressList.[0]
-        x.Start(ipAddress, ?port = port)
+        x.Start(ipAddress, ?port = port, ?maxPoolCount = maxPoolCount, ?perBocketBufferSize = perBocketBufferSize)
 
-    member x.Start(?ipAddress, ?port) = 
-        let pool = BufferPool(backlog, bufferSize)
+    member x.Start(?ipAddress, ?port, ?maxPoolCount, ?perBocketBufferSize) = 
+        let maxPoolCount = defaultArg maxPoolCount 30000
+        let perBocketBufferSize = defaultArg perBocketBufferSize 4096
+        let pool = new BocketPool("sendreceive", maxPoolCount, perBocketBufferSize)
         let tcp = Tcp.Server(run pool, backlog)
-        tcp.Start(?ipAddress = ipAddress, ?port = port)
+        let disposable = tcp.Start(?ipAddress = ipAddress, ?port = port)
+        { new IDisposable with
+            member x.Dispose() =
+                disposable.Dispose()
+                pool.Dispose()
+        }

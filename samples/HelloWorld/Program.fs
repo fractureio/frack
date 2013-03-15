@@ -20,6 +20,8 @@ open FSharp.Control
 open FSharpx
 open Frack
 
+type BS = ByteString
+
 [<EntryPoint>]
 let main argv = 
 
@@ -27,8 +29,8 @@ let main argv =
         let headers = new Dictionary<_,_>(HashIdentity.Structural)
         headers.Add("Content-Type", [|"text/plain"|])
         headers.Add("Content-Length", [|"13"|])
-        if not <| Request.shouldKeepAlive request then
-            headers.Add("Connection", [|"Close"|])
+//        if not <| Request.shouldKeepAlive request then
+//            headers.Add("Connection", [|"Close"|])
         return {
             StatusCode = 200
             Headers = headers

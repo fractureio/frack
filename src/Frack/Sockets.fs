@@ -4,60 +4,43 @@ module Frack.Sockets
 
 open System
 open System.Net.Sockets
-open Frack
+open Fracture
 open FSharp.Control
 open FSharpx
 
 type A = SocketAsyncEventArgs
+type B = BocketPool
 type BS = ByteString
 
-exception SocketIssue of SocketError with
-    override this.ToString() = string this.Data0
-
 /// Wraps the Socket.xxxAsync logic into F# async logic.
-let inline asyncDo op prepare select =
+let inline asyncDo op (args: A) select =
     Async.FromContinuations <| fun (ok, error, cancel) ->
-        let args = new A()
-        prepare args
-        let k (args: A) =
-            match args.SocketError with
-            | SocketError.Success ->
+        let callback (args: A) =
+            if args.SocketError = SocketError.Success then
                 let result = select args
                 args.Dispose()
                 ok result
-            | e ->
+            else
                 args.Dispose()
-                error <| SocketIssue e
-        let rec finish cont value =
-            remover.Dispose()
-            cont value
-        and remover : IDisposable =
-            args.Completed.Subscribe
-                ({ new IObserver<_> with
-                    member x.OnNext(v) = finish k v
-                    member x.OnError(e) = finish error e
-                    member x.OnCompleted() =
-                        finish cancel <| System.OperationCanceledException("Cancelling the workflow, because the Observable awaited has completed.")
-                })
+                error (SocketException(int args.SocketError))
+        args.Completed.Add(callback)
         if not (op args) then
-            finish k args
+            callback args
 
-/// Prepares the arguments by setting the buffer.
-let inline setBuffer (buf: BS) (args: A) =
-    args.SetBuffer(buf.Array, buf.Offset, buf.Count)
-
-let private bytesPerLong = 4
-let private bitsPerByte = 8
+let [<Literal>] private bytesPerLong = 4
+let [<Literal>] private bitsPerByte = 8
+let [<Literal>] private defaultTimeout = 1000
 
 type Socket with
-    member x.AsyncAccept () =
-        asyncDo x.AcceptAsync ignore (fun a -> a.AcceptSocket)
+    member x.AsyncAccept args = asyncDo x.AcceptAsync args (fun a -> a.AcceptSocket)
 
-    member x.AsyncAcceptSeq (?receiveTimeout, ?sendTimeout) =
-        let receiveTimeout = defaultArg receiveTimeout 1000
-        let sendTimeout = defaultArg sendTimeout 1000
+    member x.AsyncAcceptSeq (pool: B, ?receiveTimeout, ?sendTimeout) =
+        let receiveTimeout = defaultArg receiveTimeout defaultTimeout
+        let sendTimeout = defaultArg sendTimeout defaultTimeout
         let rec loop () = asyncSeq {
-            let! socket = x.AsyncAccept()
+            let args = pool.CheckOut()
+            let! socket = x.AsyncAccept(args)
+            pool.CheckIn(args)
             socket.ReceiveTimeout <- receiveTimeout
             socket.SendTimeout <- sendTimeout
             yield socket
@@ -65,42 +48,45 @@ type Socket with
         }
         loop ()
 
-    member x.AsyncReceive (buf: BS) =
-        asyncDo x.ReceiveAsync (setBuffer buf) (fun a -> a.BytesTransferred)
+    member x.AsyncReceive args = asyncDo x.ReceiveAsync args (fun a -> a.BytesTransferred)
 
-    member x.AsyncReceiveSeq (bufferPool: BufferPool) =
+    member x.AsyncReceiveSeq (pool: B) =
         let rec loop () = asyncSeq {
-            let buf = bufferPool.Take()
-            let! bytesRead = x.AsyncReceive(buf)
+            let args = pool.CheckOut()
+            let! bytesRead = x.AsyncReceive(args)
             if bytesRead > 0 then
-                let chunk = BS(buf.Array.[buf.Offset..buf.Offset + bytesRead])
-                bufferPool.Add(buf)
+                let chunk =
+                    if bytesRead < args.Count then
+                        BS(args.Buffer.[args.Offset..(args.Offset+bytesRead-1)])
+                    else BS(args.Buffer)
+                pool.CheckIn(args)
                 yield chunk
                 yield! loop ()
-            else bufferPool.Add(buf)
+            else pool.CheckIn(args)
         }
         loop ()
 
-    member x.AsyncSend (buf: BS) =
-        asyncDo x.SendAsync (setBuffer buf) ignore
+    member x.AsyncSend args = asyncDo x.SendAsync args ignore
 
-    member x.AsyncSendSeq (data, bufferPool: BufferPool) =
+    member x.AsyncSendSeq (data, pool: B) =
         let rec loop data = async {
             let! chunk = data
             match chunk with
             | Cons(bs: BS, rest) ->
-                let buf = bufferPool.Take()
-                System.Buffer.BlockCopy(bs.Array, bs.Offset, buf.Array, buf.Offset, bs.Count)
-                do! x.AsyncSend(BS(buf.Array, buf.Offset, bs.Count))
-                bufferPool.Add(buf)
+                let args = pool.CheckOut()
+                System.Buffer.BlockCopy(bs.Array, bs.Offset, args.Buffer, args.Offset, bs.Count)
+                do! x.AsyncSend(args)
+                pool.CheckIn(args)
                 do! loop rest
             | Nil -> ()
         }
         loop data
 
-    member x.AsyncDisconnect () =
-        asyncDo x.DisconnectAsync ignore <| fun a ->
+    member x.AsyncDisconnect (pool: B) =
+        let args = pool.CheckOut()
+        asyncDo x.DisconnectAsync args <| fun a ->
             try
                 x.Shutdown(SocketShutdown.Both)
             finally
+                pool.CheckIn(args)
                 x.Close()

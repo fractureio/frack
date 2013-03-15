@@ -23,17 +23,21 @@ open System.Threading
 open FSharp.Control
 open Frack
 open Frack.Sockets
+open Fracture
 
 type Server(handle, ?backlog) =
-    let backlog = defaultArg backlog 1000
+    let backlog = defaultArg backlog 10000
 
-    member x.Start(hostname:string, ?port) =
+    member x.Start(hostname:string, ?port, ?maxPoolCount, ?perBocketBufferSize) =
         let ipAddress = Dns.GetHostEntry(hostname).AddressList.[0]
-        x.Start(ipAddress, ?port = port)
+        x.Start(ipAddress, ?port = port, ?maxPoolCount = maxPoolCount, ?perBocketBufferSize = perBocketBufferSize)
 
-    member x.Start(?ipAddress, ?port) =
+    member x.Start(?ipAddress, ?port, ?maxPoolCount, ?perBocketBufferSize) =
         let ipAddress = defaultArg ipAddress IPAddress.Any
         let port = defaultArg port 80
+        let maxPoolCount = defaultArg maxPoolCount 10000
+        let perBocketBufferSize = defaultArg perBocketBufferSize 0
+        let pool = new BocketPool("accept", maxPoolCount, perBocketBufferSize)
         let endpoint = IPEndPoint(ipAddress, port)
         let cts = new CancellationTokenSource()
 
@@ -52,7 +56,7 @@ type Server(handle, ?backlog) =
         let runHandler (connection: Socket) =
             let finish comp = async {
                 let! choice = comp
-                do! connection.AsyncDisconnect()
+                do! connection.AsyncDisconnect(pool)
                 match choice with
                 | Choice1Of2 () -> ()
                 | Choice2Of2 (e: exn) ->
@@ -63,7 +67,7 @@ type Server(handle, ?backlog) =
             |> finish
 
         let runServer () = async {
-            for connection : Socket in listener.AsyncAcceptSeq() do
+            for connection : Socket in listener.AsyncAcceptSeq(pool) do
                 Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
         }
 
@@ -73,4 +77,5 @@ type Server(handle, ?backlog) =
                 cts.Cancel()
                 if listener <> null then
                     listener.Close(2)
+                pool.Dispose()
         }

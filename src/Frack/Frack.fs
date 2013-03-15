@@ -25,11 +25,29 @@ open FSharp.Control
 open FSharpx
 open FSharpx.Iteratee
 open FSharpx.Iteratee.Binary
-open Owin
+open Microsoft.FSharp.Core
+
+type MessageBody = AsyncSeq<BS>
+
+type Request = {
+    Environment : IDictionary<string, obj>
+    Headers : IDictionary<string, string[]>
+    Body : MessageBody
+}
+with static member None = { Environment = null; Headers = null; Body = AsyncSeq.empty }
+
+type Response = {
+    StatusCode : int
+    Headers : IDictionary<string, string[]>
+    Body : MessageBody
+    Properties : IDictionary<string, obj>
+}
+
+type Application = Request -> Async<Response>
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Request =
-
+    [<CompiledName("ReadHeaders")>]
     let readHeaders =
         let rec lines cont = readLine >>= fun bs -> skipNewline >>= check cont bs
         and check cont bs count =
@@ -39,32 +57,35 @@ module Request =
             | _ -> lines <| fun tail -> cont <| bs::tail
         lines id
 
+    [<CompiledName("ParseStartLine")>]
     let private parseStartLine (line: string, request: Request) =
         let arr = line.Split([|' '|], 3)
-        request.Environment.Add(Request.Version, "1.0")
-        request.Environment.Add(Request.Method, arr.[0])
+        request.Environment.Add(Owin.Constants.owinVersion, "1.0")
+        request.Environment.Add(Owin.Constants.requestMethod, arr.[0])
 
         let uri = Uri(arr.[1], UriKind.RelativeOrAbsolute)
 
         // TODO: Fix this so that the path can be determined correctly.
-        request.Environment.Add(Request.PathBase, "")
+        request.Environment.Add(Owin.Constants.requestPathBase, "")
 
         if uri.IsAbsoluteUri then
-            request.Environment.Add(Request.Path, uri.AbsolutePath)
-            request.Environment.Add(Request.QueryString, uri.Query)
-            request.Environment.Add(Request.Scheme, uri.Scheme)
+            request.Environment.Add(Owin.Constants.requestPath, uri.AbsolutePath)
+            request.Environment.Add(Owin.Constants.requestQueryString, uri.Query)
+            request.Environment.Add(Owin.Constants.requestScheme, uri.Scheme)
             request.Headers.Add("Host", [|uri.Host|])
         else
-            request.Environment.Add(Request.Path, uri.OriginalString)
+            request.Environment.Add(Owin.Constants.requestPath, uri.OriginalString)
 
-        request.Environment.Add(Request.Protocol, arr.[2].Trim())
+        request.Environment.Add(Owin.Constants.requestProtocol, arr.[2].Trim())
 
-    let private parseHeader (header: string, request: Owin.Request) =
+    [<CompiledName("ParseHeader")>]
+    let private parseHeader (header: string, request: Request) =
         // TODO: Proper header parsing.
         let pair = header.Split([|':'|], 2)
         if pair.Length > 1 then
             request.Headers.[pair.[0]] <- [| pair.[1].TrimStart(' ') |]
 
+    [<CompiledName("Parse")>]
     let parse source = async {
         let! result, source' = source |> connect readHeaders
         match result with
@@ -80,12 +101,13 @@ module Request =
             return request
     }
 
+    [<CompiledName("ShouldKeepAlive")>]
     let shouldKeepAlive (request: Request) =
         let connection =
-            if request.Headers.ContainsKey("Connection") then
+            if request.Headers <> null && request.Headers.Count > 0 && request.Headers.ContainsKey("Connection") then
                 request.Headers.["Connection"]
             else Array.empty
-        match string request.Environment.[Request.Protocol] with
+        match string request.Environment.[Owin.Constants.requestProtocol] with
         | "HTTP/1.1" -> Array.isEmpty connection || not (connection |> Array.exists ((=) "Close"))
         | "HTTP/1.0" -> not (Array.isEmpty connection) && connection |> Array.exists ((=) "Keep-Alive")
         | _ -> false
@@ -95,6 +117,7 @@ module Response =
     open System.Net
     open System.Text
 
+    [<CompiledName("GetStatusLine")>]
     let getStatusLine = function
       | 100 -> BS"HTTP/1.1 100 Continue\r\n"B
       | 101 -> BS"HTTP/1.1 101 Switching Protocols\r\n"B
@@ -160,6 +183,7 @@ module Response =
       | 511 -> BS"HTTP/1.1 511 Network Authentication Required\r\n"B
       | _ -> BS"HTTP/1.1 418 I'm a teapot\r\n"B
 
+    [<CompiledName("ToBytes")>]
     let toBytes response = 
         let statusLine = getStatusLine response.StatusCode
 
