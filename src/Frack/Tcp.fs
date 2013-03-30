@@ -59,6 +59,8 @@ type Server(handle, ?backlog) =
                 let! choice = comp
                 let args = pool.CheckOut()
                 do! connection.AsyncDisconnect(args)
+                // TODO: Don't `Close` the connection; rather restore it to the socket pool.
+                connection.Close()
                 pool.CheckIn(args)
                 match choice with
                 | Choice1Of2 () -> ()
@@ -70,16 +72,25 @@ type Server(handle, ?backlog) =
             |> finish
 
         let runServer () = async {
+            // TODO: Start the number of concurrent connections desired only.
             while true do
                 let args = pool.CheckOut()
+                // TODO: Pool the sockets, retrieve one here, and assign it to the `args`.
+                // TODO: A blocking queue should allow us to define the number of connections and still run within the `while`.
                 let! connection = listener.AsyncAccept(args)
+                // TODO: Verify the returned `connection` is the same as the one assigned.
+                // TODO: Remove the returned `connection` from the `args` before checking in.
+                args.AcceptSocket <- null
                 pool.CheckIn(args)
                 connection.ReceiveTimeout <- defaultTimeout
                 connection.SendTimeout <- defaultTimeout
-                Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
+                // TODO: Throttle this, as it will otherwise run away and fail ... very quickly.
+                //Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
+                // NOTE: This should run one connection at a time.
+                do! runHandler connection
         }
 
-        Async.StartImmediate(runServer (), cancellationToken = cts.Token)
+        Async.StartWithContinuations(runServer (), ignore, log, log, cancellationToken = cts.Token)
         { new IDisposable with
             member x.Dispose() =
                 cts.Cancel()

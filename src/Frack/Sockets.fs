@@ -32,11 +32,7 @@ type Socket with
     member x.AsyncReceive args = asyncDo x.ReceiveAsync args (fun a -> a.BytesTransferred)
     member x.AsyncSend args = asyncDo x.SendAsync args ignore
     member x.AsyncDisconnect args =
-        asyncDo x.DisconnectAsync args <| fun a ->
-            try
-                x.Shutdown(SocketShutdown.Both)
-            finally
-                x.Close()
+        asyncDo x.DisconnectAsync args <| fun a -> x.Shutdown(SocketShutdown.Both)
 
 /// A read-only stream wrapping a `Socket`.
 type SocketReadStream(socket: Socket, pool: B) as x =
