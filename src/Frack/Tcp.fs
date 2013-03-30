@@ -27,6 +27,7 @@ open Fracture
 
 type Server(handle, ?backlog) =
     let backlog = defaultArg backlog 10000
+    let [<Literal>] defaultTimeout = 1000
 
     member x.Start(hostname:string, ?port, ?maxPoolCount, ?perBocketBufferSize) =
         let ipAddress = Dns.GetHostEntry(hostname).AddressList.[0]
@@ -56,7 +57,9 @@ type Server(handle, ?backlog) =
         let runHandler (connection: Socket) =
             let finish comp = async {
                 let! choice = comp
-                do! connection.AsyncDisconnect(pool)
+                let args = pool.CheckOut()
+                do! connection.AsyncDisconnect(args)
+                pool.CheckIn(args)
                 match choice with
                 | Choice1Of2 () -> ()
                 | Choice2Of2 (e: exn) ->
@@ -67,7 +70,12 @@ type Server(handle, ?backlog) =
             |> finish
 
         let runServer () = async {
-            for connection : Socket in listener.AsyncAcceptSeq(pool) do
+            while true do
+                let args = pool.CheckOut()
+                let! connection = listener.AsyncAccept(args)
+                pool.CheckIn(args)
+                connection.ReceiveTimeout <- defaultTimeout
+                connection.SendTimeout <- defaultTimeout
                 Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
         }
 
