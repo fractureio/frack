@@ -86,7 +86,7 @@ type Server(handle, ?backlog) =
                 connection.SendTimeout <- defaultTimeout
                 // TODO: Throttle this, as it will otherwise run away and fail ... very quickly.
                 //Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
-                // NOTE: This should run one connection at a time.
+                // NOTE: This will run one connection at a time.
                 do! runHandler connection
         }
 

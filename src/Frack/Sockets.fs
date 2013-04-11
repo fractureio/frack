@@ -35,6 +35,7 @@ type Socket with
         asyncDo x.DisconnectAsync args <| fun a -> x.Shutdown(SocketShutdown.Both)
 
 /// A read-only stream wrapping a `Socket`.
+/// This stream does not close or dispose the underlying socket.
 type SocketReadStream(socket: Socket, pool: B) as x =
     inherit System.IO.Stream()
     do if socket = null then
@@ -128,6 +129,7 @@ type SocketReadStream(socket: Socket, pool: B) as x =
     override x.EndRead(asyncResult) = endRead(asyncResult)
 
 /// A write-only stream wrapping a `Socket`.
+/// This stream does not close or dispose the underlying socket.
 type SocketWriteStream(socket: Socket, pool: B) as x =
     inherit System.IO.Stream()
     do if socket = null then
