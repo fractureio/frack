@@ -18,96 +18,75 @@ namespace Frack
 
 open System
 open System.Collections.Generic
+open System.IO
+open System.Net.Sockets
 open System.Text
 open System.Threading
 open System.Threading.Tasks
+open Microsoft.FSharp.Core
+open Frack.Sockets
 open FSharp.Control
 open FSharpx
-open FSharpx.Iteratee
-open FSharpx.Iteratee.Binary
-open Microsoft.FSharp.Core
 
-type MessageBody = AsyncSeq<BS>
-
-type Request = {
-    Environment : IDictionary<string, obj>
-    Headers : IDictionary<string, string[]>
-    Body : MessageBody
-}
-with static member None = { Environment = null; Headers = null; Body = AsyncSeq.empty }
-
-type Response = {
-    StatusCode : int
-    Headers : IDictionary<string, string[]>
-    Body : MessageBody
-    Properties : IDictionary<string, obj>
-}
-
-type Application = Request -> Async<Response>
+type Env = Owin.Environment
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Request =
-    [<CompiledName("ReadHeaders")>]
-    let readHeaders =
-        let rec lines cont = readLine >>= fun bs -> skipNewline >>= check cont bs
-        and check cont bs count =
-            match bs, count with
-            | bs, _ when ByteString.isEmpty bs -> Done(cont [], EOF)
-            | bs, 0 -> Done(cont [bs], EOF)
-            | _ -> lines <| fun tail -> cont <| bs::tail
-        lines id
-
     [<CompiledName("ParseStartLine")>]
-    let private parseStartLine (line: string, request: Request) =
+    let private parseStartLine (line: string, env: Env) =
         let arr = line.Split([|' '|], 3)
-        request.Environment.Add(Owin.Constants.owinVersion, "1.0")
-        request.Environment.Add(Owin.Constants.requestMethod, arr.[0])
+        env.[Owin.Constants.requestMethod] <- arr.[0]
 
         let uri = Uri(arr.[1], UriKind.RelativeOrAbsolute)
 
         // TODO: Fix this so that the path can be determined correctly.
-        request.Environment.Add(Owin.Constants.requestPathBase, "")
+        env.Add(Owin.Constants.requestPathBase, "")
 
         if uri.IsAbsoluteUri then
-            request.Environment.Add(Owin.Constants.requestPath, uri.AbsolutePath)
-            request.Environment.Add(Owin.Constants.requestQueryString, uri.Query)
-            request.Environment.Add(Owin.Constants.requestScheme, uri.Scheme)
-            request.Headers.Add("Host", [|uri.Host|])
+            env.[Owin.Constants.requestPath] <- uri.AbsolutePath
+            env.[Owin.Constants.requestQueryString] <- uri.Query
+            env.[Owin.Constants.requestScheme] <- uri.Scheme
+            env.RequestHeaders.["Host"] <- [|uri.Host|]
         else
-            request.Environment.Add(Owin.Constants.requestPath, uri.OriginalString)
+            env.[Owin.Constants.requestPath] <- uri.OriginalString
 
-        request.Environment.Add(Owin.Constants.requestProtocol, arr.[2].Trim())
+        env.[Owin.Constants.requestProtocol] <- arr.[2].Trim()
 
     [<CompiledName("ParseHeader")>]
-    let private parseHeader (header: string, request: Request) =
-        // TODO: Proper header parsing.
+    let private parseHeader (header: string, env: Env) =
+        // TODO: Proper header parsing and aggregation, including linear white space.
         let pair = header.Split([|':'|], 2)
         if pair.Length > 1 then
-            request.Headers.[pair.[0]] <- [| pair.[1].TrimStart(' ') |]
+            env.RequestHeaders.[pair.[0]] <- [| pair.[1].TrimStart(' ') |]
 
     [<CompiledName("Parse")>]
-    let parse source = async {
-        let! result, source' = source |> connect readHeaders
-        match result with
-        | [] -> return Request.None
-        | startLine::headers ->
-            let request = {
-                Environment = new Dictionary<_,_>(HashIdentity.Structural)
-                Headers = new Dictionary<_,_>(HashIdentity.Structural)
-                Body = source'
-            }
-            parseStartLine (startLine |> ByteString.toString, request)
-            headers |> List.iter (fun h -> parseHeader(h |> ByteString.toString, request))
-            return request
-    }
+    let parse (readStream: SocketReadStream) =
+        async {
+            let env = new Env()
+            // Do the parsing manually, as the reader is likely less efficient.
+            use reader = new StreamReader(readStream, encoding = System.Text.Encoding.ASCII, detectEncodingFromByteOrderMarks = false, bufferSize = 4096, leaveOpen = true)
+            let! requestLine = Async.AwaitTask <| reader.ReadLineAsync()
+            parseStartLine(requestLine, env)
+            let parsingRequestHeaders = ref true
+            while !parsingRequestHeaders do
+                if reader.EndOfStream then parsingRequestHeaders := false else
+                // If not at the end of the stream, read the next line.
+                // TODO: Account for linear white space.
+                let! line = Async.AwaitTask <| reader.ReadLineAsync()
+                if line = "" then
+                    parsingRequestHeaders := false
+                else parseHeader(line, env)
+            env.Add(Owin.Constants.requestBody, readStream :> Stream)
+            return env
+        }
 
     [<CompiledName("ShouldKeepAlive")>]
-    let shouldKeepAlive (request: Request) =
+    let shouldKeepAlive (env: Env) =
         let connection =
-            if request.Headers <> null && request.Headers.Count > 0 && request.Headers.ContainsKey("Connection") then
-                request.Headers.["Connection"]
+            if env.RequestHeaders <> null && env.RequestHeaders.Count > 0 && env.RequestHeaders.ContainsKey("Connection") then
+                env.RequestHeaders.["Connection"]
             else Array.empty
-        match string request.Environment.[Owin.Constants.requestProtocol] with
+        match string env.[Owin.Constants.requestProtocol] with
         | "HTTP/1.1" -> Array.isEmpty connection || not (connection |> Array.exists ((=) "Close"))
         | "HTTP/1.0" -> not (Array.isEmpty connection) && connection |> Array.exists ((=) "Keep-Alive")
         | _ -> false
@@ -183,18 +162,25 @@ module Response =
       | 511 -> BS"HTTP/1.1 511 Network Authentication Required\r\n"B
       | _ -> BS"HTTP/1.1 418 I'm a teapot\r\n"B
 
-    [<CompiledName("ToBytes")>]
-    let toBytes response = 
-        let statusLine = getStatusLine response.StatusCode
+    [<CompiledName("Send")>]
+    let send (env: Env, writeStream: SocketWriteStream) = async {
+        // TODO: Aggregate the response pieces and send as a whole chunk.
+        // Write the status line
+        let statusLine = getStatusLine <| Convert.ToInt32(env.[Owin.Constants.responseStatusCode])
+        do! writeStream.AsyncWrite(statusLine.Array, statusLine.Offset, statusLine.Count)
 
-        let headers = StringBuilder()
-        if response.Headers <> null then
-            for (KeyValue(header, values)) in response.Headers do
-                for value in values do
-                    headers.AppendFormat("{0}: {1}\r\n", header, value) |> ignore
-        headers.Append("\r\n") |> ignore
+        // Write the headers
+        for (KeyValue(header, values)) in env.ResponseHeaders do
+            for value in values do
+                let headerBytes = ByteString.ofString <| sprintf "%s: %s\r\n" header value
+                do! writeStream.AsyncWrite(headerBytes.Array, headerBytes.Offset, headerBytes.Count)
 
-        asyncSeq {
-            yield ByteString.append statusLine <| BS(headers.ToString() |> Encoding.ASCII.GetBytes)
-            yield! response.Body
-        }
+        // Write the body separator
+        do! writeStream.AsyncWrite("\r\n"B, 0, 2)
+
+        // Write the response body
+        // TODO: Set a default timeout
+        let body = env.ResponseBody.ToArray()
+        let! _ = Async.AwaitIAsyncResult <| writeStream.WriteAsync(body, 0, body.Length)
+        return ()
+    }

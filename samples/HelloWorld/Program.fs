@@ -25,18 +25,13 @@ type BS = ByteString
 [<EntryPoint>]
 let main argv = 
 
-    let server = Http.Server(fun request -> async {
-        let headers = new Dictionary<_,_>(HashIdentity.Structural)
-        headers.Add("Content-Type", [|"text/plain"|])
-        headers.Add("Content-Length", [|"13"|])
+    let server = Http.Server(fun env -> async {
+        env.ResponseHeaders.Add("Content-Type", [|"text/plain"|])
+        env.ResponseHeaders.Add("Content-Length", [|"13"|])
 //        if not <| Request.shouldKeepAlive request then
 //            headers.Add("Connection", [|"Close"|])
-        return {
-            StatusCode = 200
-            Headers = headers
-            Body = asyncSeq { yield BS"Hello, world!"B }
-            Properties = null
-        }
+        env.ResponseBody.Write("Hello, world!"B, 0, 13)
+        env.ResponseBody.Flush()
     })
 
     let disposable = server.Start(port = 8090)

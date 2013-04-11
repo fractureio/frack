@@ -61,46 +61,23 @@ type SocketReadStream(socket: Socket, pool: B) as x =
     /// the caller should provide the same values as were used to create the `BocketPool`.
     member x.AsyncRead(buffer: byte[], offset, count) =
         if count = 0 then async.Return 0 else
-    
+
         // TODO: This type should retain the `args` whenever the caller's offset + count does not retrieve the bytes
         // stored in the `args`. Subsequent calls should then first read from the previous args, then retrieve the next.
 
+        let bocketPool = pool
         async {
-            let args = pool.CheckOut()
-            if buffer = args.Buffer && offset = args.Offset && count = args.Count then
-                // The happy path is if the caller uses the optimized settings,
-                // meaning that the caller passes the buffer, offset, and count
-                // used for the existing buffer.
-                let! bytesRead = socket.AsyncReceive(args)
-                pool.CheckIn(args)
-                return bytesRead
-            else
-                // Check that the buffer, offset, and count are valid.
-                if buffer = null then
-                    raise <| ArgumentNullException()
-                if offset < 0 || offset >= buffer.Length then
-                    raise <| ArgumentOutOfRangeException("offset")
-                if count < 0 || count > buffer.Length - offset then
-                    raise <| ArgumentOutOfRangeException("count")
-
-                // Capture the original values.
-                let origBuffer = args.Buffer
-                let origOffset = args.Offset
-                let origCount = args.Count
-
-                // Set the args buffer to the requested buffer, offset, and count.
-                args.SetBuffer(buffer, offset, count)
-                let! bytesRead = socket.AsyncReceive(args)
-
-                // Restore the original values to the args.
-                args.SetBuffer(origBuffer, origOffset, origCount)
-                pool.CheckIn(args)
-                return bytesRead
+            let args = bocketPool.CheckOut()
+            let! bytesRead = socket.AsyncReceive(args)
+            if buffer <> args.Buffer || offset <> args.Offset || count <> args.Count then
+                Buffer.BlockCopy(args.Buffer, args.Offset, buffer, offset, bytesRead)
+            bocketPool.CheckIn(args)
+            return bytesRead
         }
 
-    override x.CanRead = false
+    override x.CanRead = true
     override x.CanSeek = false
-    override x.CanWrite = true
+    override x.CanWrite = false
     override x.Flush() = raise <| NotSupportedException()
     override x.Length = raise <| NotSupportedException()
     override x.Position
@@ -112,18 +89,16 @@ type SocketReadStream(socket: Socket, pool: B) as x =
     override x.Seek(offset, origin) = raise <| NotSupportedException()
     override x.SetLength(value) = raise <| NotSupportedException()
     override x.Read(buffer, offset, count) =
-        x.AsyncRead(buffer, offset, count)
-        |> Async.RunSynchronously
+        if count = 0 then 0 else
+        socket.Receive(buffer, offset, count, SocketFlags.None)
     override x.Write(buffer, offset, count) = raise <| NotSupportedException()
 
     // Async Stream methods
 
-#if NET45
     override x.ReadAsync(buffer, offset, count, cancellationToken) =
         Async.StartAsTask(
             x.AsyncRead(buffer, offset, count),
             cancellationToken = cancellationToken)
-#endif
     override x.BeginRead(buffer, offset, count, callback, state) =
         beginRead((buffer, offset, count), callback, state)
     override x.EndRead(asyncResult) = endRead(asyncResult)
@@ -155,19 +130,35 @@ type SocketWriteStream(socket: Socket, pool: B) as x =
             raise <| ArgumentOutOfRangeException("count")
 
         if count = 0 then async.Zero () else
+        socket.Send(buffer, offset, count, SocketFlags.None) |> ignore
+        async.Return ()
+        // TODO: Fix async sending
+//        let bocketPool = pool
+//        async {
+//            let args = bocketPool.CheckOut()
+//            // Copy the data into the args buffer.
+//            Buffer.BlockCopy(buffer, offset, args.Buffer, args.Offset, count)
+//            // TODO: Handle the case where the args.Count is too small
+//
+//            // Set the count so that the correct number of bytes are sent.
+//            // TODO: Only reset the buffer if necessary.
+//            let origBuffer = args.Buffer
+//            let origOffset = args.Offset
+//            let origCount = args.Count
+//            args.SetBuffer(origBuffer, origOffset, count)
+//
+//            do! socket.AsyncSend(args)
+//
+//            // Reset the count for the args.
+//            // TODO: Only reset the buffer if necessary.
+//            args.SetBuffer(origBuffer, origOffset, origCount)
+//
+//            bocketPool.CheckIn(args)
+//        }
 
-        async {
-            let args = pool.CheckOut()
-            // Copy the data into the args buffer.
-            Buffer.BlockCopy(buffer, offset, args.Buffer, args.Offset, count)
-            // TODO: Handle the case where the args.Count is too small
-            do! socket.AsyncSend(args)
-            pool.CheckIn(args)
-        }
-
-    override x.CanRead = true
+    override x.CanRead = false
     override x.CanSeek = false
-    override x.CanWrite = false
+    override x.CanWrite = true
     override x.Flush() = raise <| NotSupportedException()
     override x.Length = raise <| NotSupportedException()
     override x.Position
@@ -180,19 +171,24 @@ type SocketWriteStream(socket: Socket, pool: B) as x =
     override x.SetLength(value) = raise <| NotSupportedException()
     override x.Read(buffer, offset, count) = raise <| NotSupportedException()
     override x.Write(buffer, offset, count) =
-        x.AsyncWrite(buffer, offset, count)
-        |> Async.RunSynchronously
+        if buffer = null then
+            raise <| ArgumentNullException()
+        if offset < 0 || offset >= buffer.Length then
+            raise <| ArgumentOutOfRangeException("offset")
+        if count < 0 || count > buffer.Length - offset then
+            raise <| ArgumentOutOfRangeException("count")
+
+        if count = 0 then () else
+        socket.Send(buffer, offset, count, SocketFlags.None) |> ignore
 
     // Async Stream methods
 
-#if NET45
     override x.WriteAsync(buffer, offset, count, cancellationToken) =
         Async.StartAsTask(
             x.AsyncWrite(buffer, offset, count),
             cancellationToken = cancellationToken
         )
         :> System.Threading.Tasks.Task
-#endif
     override x.BeginWrite(buffer, offset, count, callback, state) =
         beginWrite((buffer, offset, count), callback, state)
     override x.EndWrite(asyncResult) = endWrite(asyncResult)

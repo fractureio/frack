@@ -19,6 +19,7 @@ namespace Owin
 open System
 open System.Collections.Concurrent
 open System.Collections.Generic
+open System.IO
 open System.Threading
 open System.Threading.Tasks
 open Microsoft.FSharp.Core
@@ -152,8 +153,53 @@ module Constants =
         [<CompiledName("ClientCloseDescription")>]
         let [<Literal>] clientCloseDescription = "websocket.ClientCloseDescription"
 
-type Environment = IDictionary<string, obj>
-type App = Environment -> Async<unit>
+/// An Environment dictionary to store OWIN request and response values.
+type Environment() as x =
+    inherit Dictionary<string, obj>(StringComparer.Ordinal)
+
+    (* Set environment settings *)
+
+    // Set a per-request cancellation token
+    // TODO: Determine if this can use the token from the Async block.
+    let cts = new CancellationTokenSource()
+    do x.Add(Constants.callCancelled, cts.Token)
+
+    do x.Add(Constants.owinVersion, "1.0")
+
+    (* Set request defaults *)
+
+    // Add the request headers dictionary
+    let requestHeaders = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+    do x.Add(Constants.requestHeaders, requestHeaders)
+
+    (* Set response defaults *)
+    do x.Add(Constants.responseStatusCode, 200)
+
+    // Add the response headers dictionary
+    let responseHeaders = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+    do x.Add(Constants.responseHeaders, responseHeaders)
+
+    let responseBody = new MemoryStream()
+    do x.Add(Constants.responseBody, responseBody)
+
+    /// Gets the request headers dictionary for the current request.
+    member x.RequestHeaders = requestHeaders
+
+    /// Gets the response headers dictionary for the current response.
+    member x.ResponseHeaders = responseHeaders
+
+    /// Gets the response body stream.
+    member x.ResponseBody = responseBody
+
+    member x.Dispose() =
+        GC.SuppressFinalize(x)
+        responseBody.Dispose()
+        cts.Dispose()
+
+    interface IDisposable with
+        member x.Dispose() = x.Dispose()
+
+type App = IDictionary<string, obj> -> Async<unit>
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module App =
