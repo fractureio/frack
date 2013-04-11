@@ -193,8 +193,12 @@ type Environment() as x =
 
     member x.Dispose() =
         GC.SuppressFinalize(x)
-        responseBody.Dispose()
         cts.Dispose()
+        responseBody.Dispose()
+        if x.ContainsKey(Constants.requestBody) then
+            let requestBody = x.[Constants.requestBody]
+            if requestBody <> null then
+                (requestBody :?> Stream).Dispose()
 
     interface IDisposable with
         member x.Dispose() = x.Dispose()

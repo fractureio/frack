@@ -182,5 +182,5 @@ module Response =
         // TODO: Set a default timeout
         let body = env.ResponseBody.ToArray()
         let! _ = Async.AwaitIAsyncResult <| writeStream.WriteAsync(body, 0, body.Length)
-        return ()
+        return env.Dispose()
     }
