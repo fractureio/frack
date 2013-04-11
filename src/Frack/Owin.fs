@@ -152,9 +152,10 @@ module Constants =
         [<CompiledName("ClientCloseDescription")>]
         let [<Literal>] clientCloseDescription = "websocket.ClientCloseDescription"
 
-type OwinApp = IDictionary<string, obj> -> Task
+type Environment = IDictionary<string, obj>
+type App = Environment -> Async<unit>
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module OwinApp =
+module App =
     [<CompiledName("ToFunc")>]
-    let toFunc (app: OwinApp) = Func<_,_>(app)
+    let toAppDelegate (app: App) = Func<_,_>(fun d -> Async.StartAsTask (app d) :> Task)
