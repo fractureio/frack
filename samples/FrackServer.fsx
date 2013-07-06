@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //----------------------------------------------------------------------------
-#r @"..\packages\FSharpx.Core.1.6.4\lib\40\FSharpx.Core.dll"
 #load @"..\src\Frack\BufferPool.fs"
 #load @"..\src\Frack\Sockets.fs"
 #load @"..\src\Frack\Tcp.fs"
@@ -22,15 +21,13 @@
 #load @"..\src\Frack\Frack.fs"
 #load @"..\src\Frack\Http.fs"
 
-open FSharp.Control
-open FSharpx
 open Frack
 
 let server = Http.Server(fun request -> async {
     return {
         StatusCode = 200
         Headers = dict [| ("Content-Type", [|"text/plain"|]); ("Content-Length", [|"13"|]); ("Connection", [|"Close"|]) |]
-        Body = asyncSeq { yield BS"Hello, world!"B }
+        Body = asyncSeq { yield Response.BS"Hello, world!"B }
         Properties = null
     }
 })

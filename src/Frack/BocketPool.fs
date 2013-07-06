@@ -21,7 +21,6 @@ open System
 open System.Net.Sockets
 open System.Collections.Generic
 open System.Collections.Concurrent
-open Microsoft.FSharp.Core.Operators.Unchecked
 
 type BocketPool(name, maxPoolCount, perBocketBufferSize) as this =
     let totalsize = (maxPoolCount * perBocketBufferSize)
@@ -46,7 +45,7 @@ type BocketPool(name, maxPoolCount, perBocketBufferSize) as this =
         this.CheckIn(args)
 
     static member inline TryTakeAsTuple (pool: BlockingCollection<_>) (timeout:int)  = 
-        let result = ref defaultof< 'a>
+        let result = ref Unchecked.defaultof<'a>
         let success = pool.TryTake(result, timeout)
         (success, result)
 

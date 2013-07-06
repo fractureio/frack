@@ -17,11 +17,10 @@
 module Frack.Tcp
 
 open System
+open System.Diagnostics
 open System.Net
 open System.Net.Sockets
 open System.Threading
-open FSharp.Control
-open Frack
 open Frack.Sockets
 open Fracture
 
@@ -40,32 +39,31 @@ type Server(handle, ?backlog) =
         let perBocketBufferSize = defaultArg perBocketBufferSize 0
         let pool = new BocketPool("accept", maxPoolCount, perBocketBufferSize)
         let endpoint = IPEndPoint(ipAddress, port)
-        let cts = new CancellationTokenSource()
 
-        let listener =
-            new Socket(
-                AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp,
-                ReceiveBufferSize = 16384,
-                SendBufferSize = 16384,
-                NoDelay = false, // This disables nagle on true
-                LingerState = LingerOption(true, 2))
+        let listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+//            new Socket(
+//                AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp,
+//                ReceiveBufferSize = 16384,
+//                SendBufferSize = 16384,
+//                NoDelay = false, // This disables nagle on true
+//                LingerState = LingerOption(true, 2))
         listener.Bind(endpoint)
         listener.Listen(backlog)
 
-        let log (e: exn) = Console.WriteLine(e)
+        let log (e: exn) = Trace.WriteLine(e)
         
         let runHandler (connection: Socket) =
             let finish comp = async {
                 let! choice = comp
-                let args = pool.CheckOut()
-                do! connection.AsyncDisconnect(args)
-                // TODO: Don't `Close` the connection; rather restore it to the socket pool.
-                connection.Close()
-                pool.CheckIn(args)
                 match choice with
-                | Choice1Of2 () -> ()
-                | Choice2Of2 (e: exn) ->
-                    System.Diagnostics.Trace.TraceError("{0}", e)
+                | Choice1Of2 true -> () // Persistent connection
+                | Choice1Of2 false ->
+                    let args = pool.CheckOut()
+                    do! connection.AsyncDisconnect(args)
+                    // TODO: Don't `Close` the connection; rather restore it to the socket pool.
+                    connection.Close()
+                    pool.CheckIn(args)
+                | Choice2Of2 (e: exn) -> Trace.TraceError("{0}", e)
             }
             handle connection
             |> Async.Catch
@@ -78,22 +76,20 @@ type Server(handle, ?backlog) =
                 // TODO: Pool the sockets, retrieve one here, and assign it to the `args`.
                 // TODO: A blocking queue should allow us to define the number of connections and still run within the `while`.
                 let! connection = listener.AsyncAccept(args)
-                // TODO: Verify the returned `connection` is the same as the one assigned.
-                // TODO: Remove the returned `connection` from the `args` before checking in.
-                args.AcceptSocket <- null
+                args.AcceptSocket <- Unchecked.defaultof<_>
                 pool.CheckIn(args)
                 connection.ReceiveTimeout <- defaultTimeout
                 connection.SendTimeout <- defaultTimeout
                 // TODO: Throttle this, as it will otherwise run away and fail ... very quickly.
-                //Async.StartWithContinuations(runHandler connection, ignore, log, log, cts.Token)
+                //Async.StartWithContinuations(runHandler connection, ignore, log, log)
                 // NOTE: This will run one connection at a time.
                 do! runHandler connection
         }
 
-        Async.StartWithContinuations(runServer (), ignore, log, log, cancellationToken = cts.Token)
+        Async.StartWithContinuations(runServer (), ignore, log, log)
         { new IDisposable with
             member x.Dispose() =
-                cts.Cancel()
+                Async.CancelDefaultToken()
                 if listener <> null then
                     listener.Close(2)
                 pool.Dispose()

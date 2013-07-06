@@ -2,15 +2,13 @@
 #nowarn "40"
 
 open System
+open System.Net
 open System.Net.Sockets
 open Fracture
-open FSharp.Control
-open FSharpx
 
-// Taken from http://t0yv0.blogspot.com/2011/11/f-web-server-from-sockets-and-up.html
+// See http://t0yv0.blogspot.com/2011/11/f-web-server-from-sockets-and-up.html
 type A = SocketAsyncEventArgs
 type B = BocketPool
-type BS = ByteString
 
 /// Wraps the Socket.xxxAsync logic into F# async logic.
 let inline asyncDo op (args: A) select =
@@ -18,10 +16,8 @@ let inline asyncDo op (args: A) select =
         let callback (args: A) =
             if args.SocketError = SocketError.Success then
                 let result = select args
-                args.Dispose()
                 ok result
             else
-                args.Dispose()
                 error (SocketException(int args.SocketError))
         args.Completed.Add(callback)
         if not (op args) then
@@ -71,6 +67,7 @@ type SocketReadStream(socket: Socket, pool: B) as x =
             let! bytesRead = socket.AsyncReceive(args)
             if buffer <> args.Buffer || offset <> args.Offset || count <> args.Count then
                 Buffer.BlockCopy(args.Buffer, args.Offset, buffer, offset, bytesRead)
+            args.UserToken <- Unchecked.defaultof<_>
             bocketPool.CheckIn(args)
             return bytesRead
         }
@@ -94,7 +91,6 @@ type SocketReadStream(socket: Socket, pool: B) as x =
     override x.Write(buffer, offset, count) = raise <| NotSupportedException()
 
     // Async Stream methods
-
     override x.ReadAsync(buffer, offset, count, cancellationToken) =
         Async.StartAsTask(
             x.AsyncRead(buffer, offset, count),
@@ -132,6 +128,7 @@ type SocketWriteStream(socket: Socket, pool: B) as x =
         if count = 0 then async.Zero () else
         socket.Send(buffer, offset, count, SocketFlags.None) |> ignore
         async.Return ()
+
         // TODO: Fix async sending
 //        let bocketPool = pool
 //        async {
@@ -153,6 +150,7 @@ type SocketWriteStream(socket: Socket, pool: B) as x =
 //            // TODO: Only reset the buffer if necessary.
 //            args.SetBuffer(origBuffer, origOffset, origCount)
 //
+//            args.UserToken <- Unchecked.defaultof<_>
 //            bocketPool.CheckIn(args)
 //        }
 
@@ -182,7 +180,6 @@ type SocketWriteStream(socket: Socket, pool: B) as x =
         socket.Send(buffer, offset, count, SocketFlags.None) |> ignore
 
     // Async Stream methods
-
     override x.WriteAsync(buffer, offset, count, cancellationToken) =
         Async.StartAsTask(
             x.AsyncWrite(buffer, offset, count),

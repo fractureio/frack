@@ -25,8 +25,6 @@ open System.Threading
 open System.Threading.Tasks
 open Microsoft.FSharp.Core
 open Frack.Sockets
-open FSharp.Control
-open FSharpx
 
 type Env = Owin.Environment
 
@@ -59,6 +57,18 @@ module Request =
         if pair.Length > 1 then
             env.RequestHeaders.[pair.[0]] <- [| pair.[1].TrimStart(' ') |]
 
+    [<CompiledName("ShouldKeepAlive")>]
+    let shouldKeepAlive (env: Env) =
+        let requestHeaders = env.RequestHeaders
+        let connection =
+            if requestHeaders <> null && requestHeaders.Count > 0 && requestHeaders.ContainsKey("Connection") then
+                requestHeaders.["Connection"]
+            else Array.empty
+        match string env.[Owin.Constants.requestProtocol] with
+        | "HTTP/1.1" -> Array.isEmpty connection || not (connection |> Array.exists ((=) "Close"))
+        | "HTTP/1.0" -> not (Array.isEmpty connection) && connection |> Array.exists ((=) "Keep-Alive")
+        | _ -> false
+
     [<CompiledName("Parse")>]
     let parse (readStream: SocketReadStream) =
         async {
@@ -80,21 +90,13 @@ module Request =
             return env
         }
 
-    [<CompiledName("ShouldKeepAlive")>]
-    let shouldKeepAlive (env: Env) =
-        let connection =
-            if env.RequestHeaders <> null && env.RequestHeaders.Count > 0 && env.RequestHeaders.ContainsKey("Connection") then
-                env.RequestHeaders.["Connection"]
-            else Array.empty
-        match string env.[Owin.Constants.requestProtocol] with
-        | "HTTP/1.1" -> Array.isEmpty connection || not (connection |> Array.exists ((=) "Close"))
-        | "HTTP/1.0" -> not (Array.isEmpty connection) && connection |> Array.exists ((=) "Keep-Alive")
-        | _ -> false
-
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Response =
     open System.Net
     open System.Text
+
+    let BS input =
+        ArraySegment<byte>(input)
 
     [<CompiledName("GetStatusLine")>]
     let getStatusLine = function
@@ -160,7 +162,7 @@ module Response =
       | 509 -> BS"HTTP/1.1 509 Bandwidth Limit Exceeded\r\n"B
       | 510 -> BS"HTTP/1.1 510 Not Extended\r\n"B
       | 511 -> BS"HTTP/1.1 511 Network Authentication Required\r\n"B
-      | _ -> BS"HTTP/1.1 418 I'm a teapot\r\n"B
+      | _ -> BS"HTTP/1.1 500 Internal Server Error\r\n"B
 
     [<CompiledName("Send")>]
     let send (env: Env, writeStream: SocketWriteStream) = async {
@@ -172,7 +174,7 @@ module Response =
         // Write the headers
         for (KeyValue(header, values)) in env.ResponseHeaders do
             for value in values do
-                let headerBytes = ByteString.ofString <| sprintf "%s: %s\r\n" header value
+                let headerBytes = BS(Encoding.ASCII.GetBytes(sprintf "%s: %s\r\n" header value))
                 do! writeStream.AsyncWrite(headerBytes.Array, headerBytes.Offset, headerBytes.Count)
 
         // Write the body separator

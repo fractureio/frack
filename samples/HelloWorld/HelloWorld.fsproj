@@ -43,9 +43,6 @@
     <Reference Include="FSharp.Core">
       <HintPath>..\..\lib\FSharp\FSharp.Core.dll</HintPath>
     </Reference>
-    <Reference Include="FSharpx.Core">
-      <HintPath>..\..\packages\FSharpx.Core.1.6.4\lib\40\Fsharpx.Core.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,7 +53,6 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Frack\frack.fsproj">

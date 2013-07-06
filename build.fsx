@@ -14,20 +14,15 @@ let mail = "ryan.riley@panesofglass.org"
 let homepage = "http://github.com/panesofglass/frack"
 let license = "http://github.com/panesofglass/frack/raw/master/LICENSE.txt"
 
+let targetPlatformDir = getTargetPlatformDir "4.0.30319"
+
 // directories
 let buildDir = "./build/"
 let packagesDir = "./packages/"
 let testDir = "./test/"
 let deployDir = "./deploy/"
-let docsDir = "./docs/"
-
-let targetPlatformDir = getTargetPlatformDir "4.0.30319"
-
 let nugetDir = "./nuget/"
-let nugetLibDir = nugetDir @@ "lib/net40"
-let nugetDocsDir = nugetDir @@ "docs"
-
-let fsharpxVersion = GetPackageVersion packagesDir "FSharpx.Core"
+let nugetLibDir = nugetDir @@ "lib/net45"
 
 // params
 let target = getBuildParamOrDefault "target" "All"
@@ -53,7 +48,7 @@ let filesToZip =
 
 // targets
 Target "Clean" (fun _ ->
-    CleanDirs [buildDir; testDir; deployDir; docsDir]
+    CleanDirs [buildDir; testDir; deployDir; nugetDir; nugetLibDir]
 )
 
 Target "BuildApp" (fun _ ->
@@ -85,34 +80,16 @@ Target "Test" (fun _ ->
                 OutputFile = testDir + "TestResults.xml" })
 )
 
-Target "GenerateDocumentation" (fun _ ->
-    !+ (buildDir + "*.dll")
-        |> Scan
-        |> Docu (fun p ->
-            {p with
-                ToolPath = fakePath + "/docu.exe"
-                TemplatesPath = "./lib/templates"
-                OutputPath = docsDir })
-)
-
 Target "CopyLicense" (fun _ ->
     [ "LICENSE.txt" ] |> CopyTo buildDir
 )
 
-Target "ZipDocumentation" (fun _ ->
-    !+ (docsDir + "/**/*.*")
-        |> Scan
-        |> Zip docsDir (deployDir + sprintf "Documentation-%s.zip" version)
-)
-
 Target "BuildNuGet" (fun _ ->
-    CleanDirs [nugetDir; nugetLibDir; nugetDocsDir]
-
-    XCopy (docsDir |> FullName) nugetDocsDir
     [ buildDir + "Frack.dll"
       buildDir + "Frack.pdb" ]
         |> CopyTo nugetLibDir
 
+    let fsharpxVersion = GetPackageVersion packagesDir "FSharpx.Core"
     NuGet (fun p -> 
         {p with               
             Authors = authors
@@ -120,9 +97,9 @@ Target "BuildNuGet" (fun _ ->
             Description = projectDescription
             Version = version
             OutputPath = nugetDir
-            Dependencies = ["FSharpx.Core",RequireExactly fsharpxVersion]
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
             ToolPath = nugetPath
+            Dependencies = ["FSharpx.Core", fsharpxVersion]
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetKey" })
         "frack.nuspec"
 
@@ -142,8 +119,6 @@ Target "All" DoNothing
 // Build order
 "Clean"
   ==> "BuildApp" <=> "CopyLicense"
-//  ==> "GenerateDocumentation"
-//  ==> "ZipDocumentation"
   ==> "BuildNuGet"
   ==> "Deploy"
 

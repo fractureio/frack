@@ -24,9 +24,9 @@ exception ReturnNoneException183c26a427ae489c8fd92ec21a0c9a59
 
 [<assembly: AssemblyProduct ("Frack is a F# based socket implementation for high-speed, high-throughput applications.")>]
 
-[<assembly: AssemblyVersion ("0.1.130315")>]
+[<assembly: AssemblyVersion ("0.1.130706")>]
 
-[<assembly: AssemblyFileVersion ("0.1.130315")>]
+[<assembly: AssemblyFileVersion ("0.1.130706")>]
 
 [<assembly: AssemblyDelaySign (false)>]
 

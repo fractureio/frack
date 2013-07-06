@@ -33,8 +33,7 @@ type Server (app, ?backlog, ?bufferSize) =
         do! app env
         use writeStream = new SocketWriteStream(socket, pool)
         do! Response.send(env, writeStream)
-//        if Request.shouldKeepAlive request then
-//            return! run pool socket
+        return false //Request.shouldKeepAlive env
     }
 
     member x.Start(hostname: string, ?port, ?maxPoolCount, ?perBocketBufferSize) =

@@ -23,7 +23,6 @@ open System.IO
 open System.Threading
 open System.Threading.Tasks
 open Microsoft.FSharp.Core
-open FSharp.Control
 
 (**
  * OWIN 1.0.0
@@ -203,9 +202,9 @@ type Environment() as x =
     interface IDisposable with
         member x.Dispose() = x.Dispose()
 
-type App = IDictionary<string, obj> -> Async<unit>
+type WebApp = IDictionary<string, obj> -> Async<unit>
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module App =
+module WebApp =
     [<CompiledName("ToFunc")>]
-    let toAppDelegate (app: App) = Func<_,_>(fun d -> Async.StartAsTask (app d) :> Task)
+    let toAppDelegate (app: WebApp) = Func<_,_>(fun d -> Async.StartAsTask (app d) :> Task)

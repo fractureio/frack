@@ -16,8 +16,6 @@
 //----------------------------------------------------------------------------
 
 open System.Collections.Generic
-open FSharp.Control
-open FSharpx
 open Frack
 
 type BS = ByteString
@@ -28,8 +26,8 @@ let main argv =
     let server = Http.Server(fun env -> async {
         env.ResponseHeaders.Add("Content-Type", [|"text/plain"|])
         env.ResponseHeaders.Add("Content-Length", [|"13"|])
-//        if not <| Request.shouldKeepAlive request then
-//            headers.Add("Connection", [|"Close"|])
+        if not <| Request.shouldKeepAlive env then
+            env.ResponseHeaders.Add("Connection", [|"Close"|])
         env.ResponseBody.Write("Hello, world!"B, 0, 13)
         env.ResponseBody.Flush()
     })
